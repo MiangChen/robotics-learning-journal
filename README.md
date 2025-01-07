@@ -5,9 +5,13 @@
 
 [查看 legged-gym笔记](./legged_gym解读.md)
 
+[查看 LLM RL 交叉研究](https://github.com/WindyLab/LLM-RL-Papers)
+
 [查看 集群和涌现笔记](./集群和涌现.md)
 
 [查看 脑科学启发论文](./脑科学启发论文.md)
+
+
 
 [查看 个人思考](./个人想法.md)
 
