@@ -6,7 +6,7 @@
 
 - [x] 了解legged-gym环境基本信息
 - [ ] 了解wheel-legged的基本文件以及和legged-gym的关系
-- [ ] 
+- [ ] 一些启发研究
 
 ***
 
@@ -207,3 +207,5 @@ A：以台阶环境为例，找到`legged_gym/envs/pointfoot/mixed_terrain/point
 
 
 
+启发研究：
+游戏中上下楼梯问题的解决思路： https://www.youtube.com/watch?v=GnOmGdMh7ww

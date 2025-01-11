@@ -207,6 +207,25 @@ Visual Language Models 使用的训练目标包括：
 
 
 
+## 综述
+
+Towards Generalist Robot Policies: What Matters in Building Vision-Language-Action Models： https://arxiv.org/abs/2412.14058
+
+本文详细讨论了VLA领域的论文研究情况。
+
+本文的作者提出了一个统一的RoboVLMs框架，可以用一个统一框架来实验，并回答以下几个问题：
+
+- why 为什么VLA是一种高效的机器人策略生成器。
+- which 哪一种VLM最适合构建VLA
+- how 如何VLA的架构
+- when 何时加入额外的数据给VLA微调
+
+
+
+
+
+
+
 ## RT-1
 
 RT-1: https://arxiv.org/pdf/2212.06817
@@ -340,3 +359,8 @@ OpenVLA在训练上有一些细节：
 
 
 
+# 开源的仿真环境
+
+CALVIN
+
+SimplerEnv：
