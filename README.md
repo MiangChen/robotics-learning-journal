@@ -3,7 +3,7 @@
 
 ## 技术文档相关
 
-[查看 台式机 Ubuntu 22.04 双系统+ NV driver + Isaac系列 全保姆流程]（https://xetk4h23q3.feishu.cn/wiki/C985wlnk5iDnJakICQrcvw06nZg?from=from_copylink）
+[查看 台式机 Ubuntu 22.04 双系统+ NV driver + Isaac系列 全保姆流程](https://xetk4h23q3.feishu.cn/wiki/C985wlnk5iDnJakICQrcvw06nZg?from=from_copylink)
 
 [查看 ROS2 资料](https://xetk4h23q3.feishu.cn/wiki/PqSjwLhcKixoKakgLiycHJqhn3e?from=from_copylink)
 
