@@ -11,9 +11,9 @@
 
 [查看 集群任务规划笔记](./集群任务规划.md) ✨✨✨（New Update）
 
-	新增 失落的宝藏 案例，帮助理解4种任务分配。
+- 新增 失落的宝藏 案例，帮助理解4种任务分配。
 
-	<img src="./assets/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
+    <img src="./assets/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
 
 [查看 VLA 笔记](./VLA入门理解.md)
 
