@@ -1,0 +1,67 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="54">
+            <item index="0" class="java.lang.String" itemvalue="tiktoken" />
+            <item index="1" class="java.lang.String" itemvalue="PyYAML" />
+            <item index="2" class="java.lang.String" itemvalue="nbclient" />
+            <item index="3" class="java.lang.String" itemvalue="setuptools" />
+            <item index="4" class="java.lang.String" itemvalue="qdrant-client" />
+            <item index="5" class="java.lang.String" itemvalue="faiss_cpu" />
+            <item index="6" class="java.lang.String" itemvalue="semantic-kernel" />
+            <item index="7" class="java.lang.String" itemvalue="playwright" />
+            <item index="8" class="java.lang.String" itemvalue="anthropic" />
+            <item index="9" class="java.lang.String" itemvalue="fire" />
+            <item index="10" class="java.lang.String" itemvalue="lancedb" />
+            <item index="11" class="java.lang.String" itemvalue="gitpython" />
+            <item index="12" class="java.lang.String" itemvalue="libcst" />
+            <item index="13" class="java.lang.String" itemvalue="gitignore-parser" />
+            <item index="14" class="java.lang.String" itemvalue="beautifulsoup4" />
+            <item index="15" class="java.lang.String" itemvalue="pydantic" />
+            <item index="16" class="java.lang.String" itemvalue="wrapt" />
+            <item index="17" class="java.lang.String" itemvalue="typing-extensions" />
+            <item index="18" class="java.lang.String" itemvalue="loguru" />
+            <item index="19" class="java.lang.String" itemvalue="ipykernel" />
+            <item index="20" class="java.lang.String" itemvalue="openai" />
+            <item index="21" class="java.lang.String" itemvalue="channels" />
+            <item index="22" class="java.lang.String" itemvalue="aioredis" />
+            <item index="23" class="java.lang.String" itemvalue="rank-bm25" />
+            <item index="24" class="java.lang.String" itemvalue="networkx" />
+            <item index="25" class="java.lang.String" itemvalue="jieba" />
+            <item index="26" class="java.lang.String" itemvalue="zhipuai" />
+            <item index="27" class="java.lang.String" itemvalue="scikit_learn" />
+            <item index="28" class="java.lang.String" itemvalue="numpy" />
+            <item index="29" class="java.lang.String" itemvalue="websocket-client" />
+            <item index="30" class="java.lang.String" itemvalue="google-generativeai" />
+            <item index="31" class="java.lang.String" itemvalue="tenacity" />
+            <item index="32" class="java.lang.String" itemvalue="anytree" />
+            <item index="33" class="java.lang.String" itemvalue="websockets" />
+            <item index="34" class="java.lang.String" itemvalue="ipywidgets" />
+            <item index="35" class="java.lang.String" itemvalue="typer" />
+            <item index="36" class="java.lang.String" itemvalue="meilisearch" />
+            <item index="37" class="java.lang.String" itemvalue="aiofiles" />
+            <item index="38" class="java.lang.String" itemvalue="nbformat" />
+            <item index="39" class="java.lang.String" itemvalue="rich" />
+            <item index="40" class="java.lang.String" itemvalue="ipython" />
+            <item index="41" class="java.lang.String" itemvalue="socksio" />
+            <item index="42" class="java.lang.String" itemvalue="ta" />
+            <item index="43" class="java.lang.String" itemvalue="imap_tools" />
+            <item index="44" class="java.lang.String" itemvalue="pandas" />
+            <item index="45" class="java.lang.String" itemvalue="python_docx" />
+            <item index="46" class="java.lang.String" itemvalue="tqdm" />
+            <item index="47" class="java.lang.String" itemvalue="typing-inspect" />
+            <item index="48" class="java.lang.String" itemvalue="dashscope" />
+            <item index="49" class="java.lang.String" itemvalue="aiohttp" />
+            <item index="50" class="java.lang.String" itemvalue="qianfan" />
+            <item index="51" class="java.lang.String" itemvalue="openpyxl" />
+            <item index="52" class="java.lang.String" itemvalue="Pillow" />
+            <item index="53" class="java.lang.String" itemvalue="genesis-world" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
