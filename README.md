@@ -13,7 +13,7 @@
 
 - 新增 失落的宝藏 案例，帮助理解4种任务分配。
 
-    <img src="assets/集群任务规划.assets/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
+    <img src="asset/集群任务规划.asset/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
 
 [查看 VLA 笔记](./VLA入门理解.md)
 
