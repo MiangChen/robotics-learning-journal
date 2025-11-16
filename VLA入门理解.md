@@ -238,7 +238,7 @@ Towards Generalist Robot Policies: What Matters in Building Vision-Language-Acti
 
 RT-1: https://arxiv.org/pdf/2212.06817
 
-![image-20250104200732718](./image/rt1.png)
+![image-20250104200732718](assets/rt1.png)
 
 ### 训练流程: 
 
@@ -320,7 +320,7 @@ RT-1的架构结合了先进的图像编码器和语言理解模块，通过条�
 
 ​	RT-2的思路如下图所示. 
 
-![image-20250104202642220](./image/rt2.png)
+![image-20250104202642220](assets/rt2.png)
 
 ​	看到这个框架图, 可能会有非常多的问题, 这和RT-1看起来差别太大了, 那么接下来一步一步的分析。
 
@@ -348,7 +348,7 @@ RT-1的架构结合了先进的图像编码器和语言理解模块，通过条�
 
 该论文发表于2024年6月，研究团队主要来自于斯坦福大学、加州伯克利、麻省理工，合作企业主要是Google Deepmind。	
 
-![image-20250106220111470](./image/openvla.png)
+![image-20250106220111470](assets/openvla.png)
 
 过去VLA存在几个痛点：1. 大部分是闭源的，前面的RT-2模型就是闭源的 2. 过去的微调方法不够高效，模型也比较大，不方便迁移到新的机器人本体和别的任务上，不便于部署。
 
