@@ -84,6 +84,40 @@ python3 utils/fix_punctuation.py --help
 
 ---
 
+## 快速开始
+
+**方式一：自动安装（推荐）**
+```bash
+# format_md.sh 会自动检查并安装依赖
+bash utils/format_md.sh 你的文件.md
+```
+
+**方式二：手动安装**
+```bash
+# 使用安装脚本
+bash utils/install_deps.sh
+
+# 或者使用pip
+pip install -r utils/requirements.txt
+
+# 然后处理文档
+bash utils/format_md.sh 你的文件.md
+```
+
+**单独使用：**
+```bash
+# 只修复标点符号
+python3 utils/fix_punctuation.py 文件.md
+
+# 只生成目录
+python3 utils/generate_toc.py 文件.md
+
+# 只转换PDF
+python3 utils/md_to_pdf.py 文件.md
+```
+
+---
+
 ## 工作流程建议
 
 推荐的文档处理流程：
@@ -91,30 +125,92 @@ python3 utils/fix_punctuation.py --help
 1. **编辑文档** - 正常编写/修改 Markdown 内容
 2. **统一标点** - 运行 `fix_punctuation.py` 统一标点符号
 3. **更新目录** - 运行 `generate_toc.py` 更新目录
-4. **提交代码** - 提交到版本控制系统
+4. **转换PDF** - 运行 `md_to_pdf.py` 生成PDF文档
+5. **提交代码** - 提交到版本控制系统
 
-可以创建一个简单的脚本自动化这个流程：
+或者直接使用 `format_md.sh` 一键完成所有步骤！
+
+---
+
+### 3. md_to_pdf.py - Markdown转PDF
+
+将Markdown文件转换为PDF，支持中文、代码高亮、表格等。
+
+**功能特点：**
+- ✅ 纯Python实现，无需系统依赖
+- ✅ 支持中文字体
+- ✅ 代码语法高亮
+- ✅ 支持表格、图片、链接
+- ✅ 自动生成目录
+- ✅ 美观的PDF样式
+- ✅ 二级标题（##）自动分页
+- ✅ HTTP/HTTPS链接可点击
+- ✅ 自动添加页码
+
+**使用方法：**
 
 ```bash
-#!/bin/bash
-# format_md.sh
+# 首次使用需要安装依赖
+pip install -r utils/requirements.txt
+# 或者
+pip install markdown weasyprint pygments
 
-echo "正在统一标点符号..."
-python3 utils/fix_punctuation.py 集群任务规划.md
+# 转换默认文件
+python3 utils/md_to_pdf.py
 
-echo "正在更新目录..."
-python3 utils/generate_toc.py 集群任务规划.md
+# 转换指定文件
+python3 utils/md_to_pdf.py 文件名.md
 
-echo "✓ 文档格式化完成！"
+# 指定输出文件名
+python3 utils/md_to_pdf.py input.md output.pdf
+
+# 检查依赖是否安装
+python3 utils/md_to_pdf.py --check
+
+# 查看帮助
+python3 utils/md_to_pdf.py --help
+```
+
+**示例输出：**
+```
+📄 正在转换: 集群任务规划.md -> 集群任务规划.pdf
+✅ 转换成功: 集群任务规划.pdf
+```
+
+---
+
+### 4. format_md.sh - 一键处理脚本
+
+自动执行完整的文档处理流程：统一标点符号 → 更新目录 → 转换PDF
+
+**使用方法：**
+
+```bash
+# 处理默认文件
+bash utils/format_md.sh
+
+# 处理指定文件
+bash utils/format_md.sh 文件名.md
 ```
 
 ---
 
 ## 依赖
 
-这些工具只使用 Python 标准库，无需安装额外依赖：
+**基础工具（fix_punctuation.py, generate_toc.py）：**
 - Python 3.6+
 - 标准库：`re`, `sys`, `os`
+
+**PDF转换工具（md_to_pdf.py）：**
+- Python 3.6+
+- markdown>=3.4.0
+- weasyprint>=60.0
+- pygments>=2.16.0
+
+安装PDF转换依赖：
+```bash
+pip install -r utils/requirements.txt
+```
 
 ---
 
