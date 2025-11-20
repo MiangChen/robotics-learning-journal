@@ -9,7 +9,7 @@
 
 ## 调研相关 
 
-### 📄 [集群任务规划笔记 PDF](./集群任务规划.pdf) ✨✨✨（New Update）
+### 📄 [集群任务规划笔记 PDF](集群任务规划.pdf) ✨✨✨（New Update）
 
 > **特性：** 
 > - ✅ 所有HTTP链接可点击跳转 (需要下载到本地, github的pdf阅读器不支持跳转)
@@ -21,10 +21,10 @@
 
     <img src="asset/集群任务规划.asset/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
 
-[查看 VLA 笔记](./VLA入门理解.md)
+[查看 VLA 笔记](VLA入门理解.md)
 
-[查看 legged-gym笔记](./legged_gym解读.md)
+[查看 legged-gym笔记](legged_gym解读.md)
 
 [查看 LLM RL 交叉研究](https://github.com/WindyLab/LLM-RL-Papers)
 
-[查看 脑科学启发论文](./脑科学启发论文.md)
+[查看 脑科学启发论文](脑科学启发论文.md)
