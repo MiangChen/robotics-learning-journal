@@ -8,11 +8,12 @@
 - 二级标题（##）自动分页
 - HTTP/HTTPS链接保持可点击
 - 自动添加页码
-- 使用纯Python包实现（markdown + weasyprint）
+- 使用 markdown + weasyprint 实现
 """
 
 import sys
 import os
+import re
 
 
 def check_dependencies():
@@ -84,21 +85,7 @@ def get_html_template(content):
             border-bottom: 1px solid #bdc3c7;
             padding-bottom: 8px;
             margin-top: 25px;
-            page-break-before: always;  /* 二级标题前自动分页 */
             page-break-after: avoid;
-        }}
-        
-        /* 第一个h2不分页（如果是紧跟h1或在文档开头） */
-        h1 + h2,
-        body > h2:first-child {{
-            page-break-before: auto;
-        }}
-        
-        /* 目录部分不分页 */
-        h2#_1,
-        h2[id*="目录"],
-        h2[id*="toc"] {{
-            page-break-before: auto;
         }}
         
         h3 {{
@@ -247,11 +234,7 @@ def get_html_template(content):
 
 
 def convert_urls_to_links(html_content):
-    """
-    将HTML中的纯文本URL转换为可点击的链接
-    """
-    import re
-    
+    """将HTML中的纯文本URL转换为可点击的链接"""
     # URL正则表达式
     url_pattern = r'(?<!href=")(?<!src=")(https?://[^\s<>"]+)'
     
@@ -278,12 +261,7 @@ def convert_urls_to_links(html_content):
 
 
 def fix_anchor_links(html_content, md_content):
-    """
-    修复HTML中的锚点链接，确保目录链接能正确跳转
-    通过在每个标题前添加额外的锚点来实现
-    """
-    import re
-    
+    """修复HTML中的锚点链接，确保目录链接能正确跳转"""
     # 从markdown中提取所有标题
     md_heading_pattern = r'^(#{2,5})\s+(.+)$'
     md_headings = re.findall(md_heading_pattern, md_content, re.MULTILINE)
@@ -328,9 +306,7 @@ def fix_anchor_links(html_content, md_content):
 
 
 def convert_md_to_pdf(input_file, output_file=None):
-    """
-    将Markdown转换为PDF
-    """
+    """将Markdown转换为PDF"""
     # 检查输入文件是否存在
     if not os.path.exists(input_file):
         print(f"❌ 错误：找不到文件 {input_file}")
@@ -344,11 +320,8 @@ def convert_md_to_pdf(input_file, output_file=None):
     
     try:
         import markdown
-        from markdown.extensions.codehilite import CodeHiliteExtension
-        from markdown.extensions.fenced_code import FencedCodeExtension
-        from markdown.extensions.tables import TableExtension
-        from markdown.extensions.toc import TocExtension
         import weasyprint
+        from weasyprint import HTML, CSS
         
         # 读取Markdown文件
         with open(input_file, 'r', encoding='utf-8') as f:
@@ -366,6 +339,7 @@ def convert_md_to_pdf(input_file, output_file=None):
             'codehilite': {
                 'css_class': 'codehilite',
                 'linenums': False,
+                'guess_lang': False,
             },
             'toc': {
                 'toc_depth': '2-4',
@@ -379,14 +353,18 @@ def convert_md_to_pdf(input_file, output_file=None):
         # 将纯文本URL转换为链接
         html_content = convert_urls_to_links(html_content)
         
-        # 修复锚点链接（传入原始markdown内容）
+        # 修复锚点链接
         html_content = fix_anchor_links(html_content, md_content)
         
         # 使用模板
         full_html = get_html_template(html_content)
         
+        # 获取基础路径（用于解析相对路径的图片）
+        base_path = os.path.dirname(os.path.abspath(input_file))
+        
         # 转换HTML为PDF
-        weasyprint.HTML(string=full_html, base_url=os.path.dirname(os.path.abspath(input_file))).write_pdf(output_file)
+        html_obj = HTML(string=full_html, base_url=base_path)
+        html_obj.write_pdf(output_file)
         
         print(f"✅ 转换成功: {output_file}")
         return True
