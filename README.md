@@ -16,9 +16,7 @@
 
 > **更新内容：**
 > - 新增 失落的宝藏 案例，帮助理解4种任务分配
-> - 任务规划语言的发展史 PDDL, HTN, LTL...
-> 
-> **注意**：此文档位于私密子模块 `docs/` 中，需要访问权限。
+> - 任务规划语言的发展史 PDDL, HTN, LTL, RDDL...
 
 <img src="asset/集群任务规划.asset/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
 
