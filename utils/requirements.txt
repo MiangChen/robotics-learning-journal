@@ -3,3 +3,4 @@ weasyprint>=60.0
 pygments>=2.16.0
 cffi>=1.15.0
 pycparser>=2.21
+opencc-python-reimplemented>=0.1.7
