@@ -132,7 +132,46 @@ python3 utils/md_to_pdf.py 文件.md
 
 ---
 
-### 3. md_to_pdf.py - Markdown转PDF
+### 3. auto_divide.py - 自动添加分页符
+
+在一级和二级标题前自动添加分页符，用于 Typora 等编辑器导出 PDF 时控制分页。
+
+**功能特点：**
+- ✅ 在 `#` 和 `##` 标题前添加分页符
+- ✅ 智能检测，避免重复添加
+- ✅ 保持文档开头第一个标题不分页
+- ✅ 兼容 Typora、VS Code 等编辑器
+
+**使用方法：**
+
+```bash
+# 处理默认文件（集群任务规划.md）
+python3 utils/auto_divide.py
+
+# 处理指定文件（直接修改原文件）
+python3 utils/auto_divide.py 文件名.md
+
+# 输出到新文件
+python3 utils/auto_divide.py input.md output.md
+
+# 查看帮助
+python3 utils/auto_divide.py --help
+```
+
+**示例输出：**
+```
+📄 正在处理: 集群任务规划.md
+✅ 处理完成: 集群任务规划.md
+```
+
+**添加的分页符格式：**
+```html
+<div style="page-break-after: always;"></div>
+```
+
+---
+
+### 4. md_to_pdf.py - Markdown转PDF
 
 将Markdown文件转换为PDF，支持中文、代码高亮、表格等。
 
@@ -179,25 +218,76 @@ python3 utils/md_to_pdf.py --help
 
 ---
 
-### 4. format_md.sh - 一键处理脚本
+### 5. prompt.py - 文档写作风格指南
 
-自动执行完整的文档处理流程：统一标点符号 → 更新目录 → 转换PDF
+提供标准化的写作风格提示词，帮助AI助手按照统一的风格继续撰写技术文档。
+
+**功能特点：**
+- ✅ 详细的写作风格规范
+- ✅ 包含语言风格、结构组织、技术呈现等多个维度
+- ✅ 提供实际应用示例和常用表达模板
+- ✅ 可直接作为AI助手的系统提示词
 
 **使用方法：**
 
 ```bash
-# 处理默认文件
+# 查看完整的写作风格指南
+python3 utils/prompt.py
+
+# 在Python代码中使用
+from utils.prompt import get_prompt
+style_guide = get_prompt()
+```
+
+**主要内容：**
+- 整体定位与目标读者
+- 语言风格特征（口语化与学术性的平衡）
+- 结构组织原则
+- 技术内容呈现方式
+- 代码与公式规范
+- 特色写作技巧
+- AI助手使用指南
+
+---
+
+### 6. format_md.sh - 一键处理脚本
+
+自动执行完整的文档处理流程：统一标点符号 → 更新目录 → 添加分页符 → 可选转换PDF
+
+**使用方法：**
+
+```bash
+# 处理默认文件（不转PDF）
 bash utils/format_md.sh
 
-# 处理指定文件
+# 处理指定文件（不转PDF）
 bash utils/format_md.sh 文件名.md
+
+# 处理默认文件并转PDF
+bash utils/format_md.sh -pdf
+
+# 处理指定文件并转PDF
+bash utils/format_md.sh 文件名.md -pdf
+
+# 或者
+bash utils/format_md.sh -pdf 文件名.md
 ```
+
+**处理流程：**
+1. 统一标点符号（fix_punctuation.py）
+2. 更新目录（generate_toc.py）
+3. 添加分页符（auto_divide.py）
+4. 转换PDF（md_to_pdf.py，仅当使用 `-pdf` 参数时）
 
 ---
 
 ## 依赖
 
 **基础工具（fix_punctuation.py, generate_toc.py）：**
+- Python 3.6+
+- 标准库：`re`, `sys`, `os`
+
+**分页符工具（auto_divide.py）：**
 - Python 3.6+
 - 标准库：`re`, `sys`, `os`
 
