@@ -2,25 +2,6 @@
 
 主要关注**具身智能**以及**任务规划**方面的课题, 目前处于前期的探索阶段, 将探索的过程记录下来, 作为个人学习记录, 或许也能提供别人一些帮助.
 
-## 📦 仓库结构
-
-本仓库包含一个私密子模块 `docs/`，用于存放详细的技术文档。
-
-### 克隆仓库
-
-```bash
-# 克隆时同时初始化子模块（推荐）
-git clone --recursive git@github.com:MiangChen/robotics-learning-journal.git
-
-# 或者先克隆，后初始化子模块
-git clone git@github.com:MiangChen/robotics-learning-journal.git
-cd robotics-learning-journal
-git submodule init
-git submodule update
-```
-
-**注意**：`docs/` 子模块是私密仓库，需要相应的访问权限。如果没有权限，该目录将为空。  
-
 ## 技术文档相关
 
 [查看 安装 台式机 Ubuntu 22.04 双系统+ NV driver + Isaac系列 全保姆流程](https://xetk4h23q3.feishu.cn/wiki/C985wlnk5iDnJakICQrcvw06nZg?from=from_copylink)
@@ -35,11 +16,9 @@ git submodule update
 
 > **更新内容：**
 > - 新增 失落的宝藏 案例，帮助理解4种任务分配
-> - 任务规划语言的发展史 PDDL, HTN, LTL...
-> 
-> **注意**：此文档位于私密子模块 `docs/` 中，需要访问权限。
+> - 任务规划语言的发展史 PDDL, HTN, LTL, RDDL...
 
-<img src="docs/asset/集群任务规划.asset/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
+<img src="asset/集群任务规划.asset/Generated Image November 04, 2025 - 11_49AM.png" style="zoom: 100%;" />
 
 [查看 VLA 笔记](VLA入门理解.md)
 

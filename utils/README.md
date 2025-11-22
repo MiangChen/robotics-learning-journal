@@ -218,7 +218,49 @@ python3 utils/md_to_pdf.py --help
 
 ---
 
-### 5. prompt.py - 文档写作风格指南
+### 5. traditional_to_simplified.py - 繁体字转简体字
+
+自动将Markdown文档中的繁体字转换为简体字，同时保护代码块、链接等特殊内容。
+
+**功能特点：**
+- ✅ 自动识别并转换繁体字为简体字
+- ✅ 保护代码块中的内容（不转换）
+- ✅ 保护行内代码、链接、图片路径
+- ✅ 保护HTML标签
+- ✅ 支持预览模式
+
+**使用方法：**
+
+```bash
+# 检查依赖
+python3 utils/traditional_to_simplified.py --check
+
+# 安装依赖（如果需要）
+pip install opencc-python-reimplemented
+
+# 直接修改原文件
+python3 utils/traditional_to_simplified.py 文档.md
+
+# 输出到新文件
+python3 utils/traditional_to_simplified.py input.md output.md
+
+# 预览转换结果（不修改文件）
+python3 utils/traditional_to_simplified.py 文档.md --preview
+
+# 查看帮助
+python3 utils/traditional_to_simplified.py --help
+```
+
+**示例输出：**
+```
+📄 正在处理: 文档.md
+✅ 转换完成: 文档.md
+   转换了 156 个繁体字
+```
+
+---
+
+### 6. prompt.py - 文档写作风格指南
 
 提供标准化的写作风格提示词，帮助AI助手按照统一的风格继续撰写技术文档。
 
@@ -250,9 +292,9 @@ style_guide = get_prompt()
 
 ---
 
-### 6. format_md.sh - 一键处理脚本
+### 7. format_md.sh - 一键处理脚本
 
-自动执行完整的文档处理流程：统一标点符号 → 更新目录 → 添加分页符 → 可选转换PDF
+自动执行完整的文档处理流程：繁简转换 → 统一标点符号 → 更新目录 → 添加分页符 → 可选转换PDF
 
 **使用方法：**
 
@@ -274,10 +316,11 @@ bash utils/format_md.sh -pdf 文件名.md
 ```
 
 **处理流程：**
-1. 统一标点符号（fix_punctuation.py）
-2. 更新目录（generate_toc.py）
-3. 添加分页符（auto_divide.py）
-4. 转换PDF（md_to_pdf.py，仅当使用 `-pdf` 参数时）
+1. 繁体字转简体字（traditional_to_simplified.py）
+2. 统一标点符号（fix_punctuation.py）
+3. 更新目录（generate_toc.py）
+4. 添加分页符（auto_divide.py）
+5. 转换PDF（md_to_pdf.py，仅当使用 `-pdf` 参数时）
 
 ---
 
