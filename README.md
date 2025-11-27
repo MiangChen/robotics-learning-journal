@@ -1,17 +1,16 @@
-　　欢迎对该仓库提出问题 Issue，如果fork后加入了你觉得好用的功能，可以发起成为 合并 merge，又可以直接申请加入collaborate. 让我们打造一个更好的开源生态。
-
 # robotics-learning-journal
 
 　　主要关注**具身智能**以及**任务规划**方面的课题，目前处于前期的探索阶段，将探索的过程记录下来，作为个人学习记录，或许也能提供别人一些帮助。
+　　欢迎对该仓库提出问题 Issue，如果fork后加入了你觉得好用的功能，可以发起成为 合并 merge，又可以直接申请加入collaborate. 让我们打造一个更好的开源生态。
 
 <div style="page-break-after: always;"></div>
 
 ## 目录
 
+- [目录](#目录)
 - [技术文档相关](#技术文档相关)
 - [调研相关](#调研相关)
-  - [📄 集群任务规划笔记 PDF ✨✨✨（New Update）](#集群任务规划笔记-pdf-new-update)
-
+  - [📄 任务规划笔记 PDF ✨✨✨（New Update）](#任务规划笔记-pdf-new-update)
 ***
 
 <div style="page-break-after: always;"></div>
@@ -28,7 +27,7 @@
 
 ## 调研相关 
 
-### 📄 [集群任务规划笔记 PDF](集群任务规划.pdf) ✨✨✨（New Update）
+### 📄 [任务规划笔记 PDF](任务规划.pdf) ✨✨✨（New Update）
 
 > **更新内容：**
 > - 新增 失落的宝藏 案例，帮助理解4种任务分配
