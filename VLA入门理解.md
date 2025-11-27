@@ -1,6 +1,6 @@
-这个文档主要面向第一次接触VLA的小白, 假设之前对于LLM之类的有一定了解, 但是并不太深入. 因此在学习VLA之前, 需要先了解一定的背景知识, 在下面我们会先介绍下representatin-learning models, vsiual language models, pre training, 在做什么事情. 然后再引入VLA领域的论文RT系列.
+　　这个文档主要面向第一次接触VLA的小白，假设之前对于LLM之类的有一定了解，但是并不太深入。 因此在学习VLA之前，需要先了解一定的背景知识，在下面我们会先介绍下representatin-learning models, vsiual language models, pre training，在做什么事情。 然后再引入VLA领域的论文RT系列。
 
-该比较的目的:
+　　该比较的目的:
 
 - [ ] VLA的基础
   - 发展历史
@@ -16,15 +16,63 @@
 
 # VLA的基础
 
+<div style="page-break-after: always;"></div>
+
+## 目录
+
+- [目录](#目录)
+- [发展历史](#发展历史)
+- [Representation-learning models](#representation-learning-models)
+  - [经典论文:](#经典论文)
+  - [特征:](#特征)
+  - [训练流程：](#训练流程)
+  - [1. 数据准备](#1-数据准备)
+  - [2. 模态特征提取](#2-模态特征提取)
+  - [3. 嵌入表示](#3-嵌入表示)
+  - [4. 对比学习（Contrastive Learning）](#4-对比学习contrastive-learning)
+    - [核心思想](#核心思想)
+    - [具体实现](#具体实现)
+    - [损失函数：对比损失（Contrastive Loss）](#损失函数对比损失contrastive-loss)
+- [Visual Language Models](#visual-language-models)
+  - [经典论文:](#经典论文)
+  - [特征:](#特征)
+  - [训练流程:](#训练流程)
+  - [1. 数据准备](#1-数据准备)
+  - [2. 模态特征提取](#2-模态特征提取)
+  - [3. 多模态融合](#3-多模态融合)
+  - [4. 生成模块](#4-生成模块)
+  - [5. 训练](#5-训练)
+- [Pre training](#pre-training)
+- [综述](#综述)
+- [RT-1](#rt-1)
+  - [训练流程:](#训练流程)
+  - [1. 数据准备](#1-数据准备)
+    - [a. 数据收集](#a-数据收集)
+  - [2. 模型架构](#2-模型架构)
+    - [a. 图像编码器：EfficientNet-B3](#a-图像编码器efficientnet-b3)
+    - [b. 语言嵌入：Universal Sentence Encoder](#b-语言嵌入universal-sentence-encoder)
+    - [c. 条件化机制：FiLM层](#c-条件化机制film层)
+    - [d. vision-language tokens](#d-vision-language-tokens)
+    - [e. TokenLearner压缩](#e-tokenlearner压缩)
+    - [f. Transformer处理](#f-transformer处理)
+    - [g. 动作生成与编码](#g-动作生成与编码)
+- [RT-2](#rt-2)
+- [OpenVLA](#openvla)
+***
+
+<div style="page-break-after: always;"></div>
+
 ## 发展历史
 
 
+
+<div style="page-break-after: always;"></div>
 
 ## Representation-learning models 
 
 ### 经典论文:
 
-CLIP: https://proceedings.mlr.press/v139/radford21a
+　　CLIP: https://proceedings.mlr.press/v139/radford21a
 
 ### **特征**:
 
@@ -37,14 +85,14 @@ CLIP: https://proceedings.mlr.press/v139/radford21a
 
 ### **1. 数据准备**
 
-CLIP 使用大量的图像-文本对作为训练数据。这些对通常由描述性文本与相应的图像组成。例如：
+　　CLIP 使用大量的图像-文本对作为训练数据。这些对通常由描述性文本与相应的图像组成。例如：
 
 - 图像：一张猫的照片。
 - 文本：描述该图像的语句，如“a cute cat sitting on the couch”。
 
 ### **2. 模态特征提取**
 
-CLIP 的模型分为两个部分：
+　　CLIP 的模型分为两个部分：
 
 1. 视觉编码器（Vision Encoder）：
    - 使用卷积神经网络（CNN，如 ResNet）或视觉变换器（Vision Transformer, ViT）提取图像的特征。
@@ -53,11 +101,11 @@ CLIP 的模型分为两个部分：
    - 使用语言模型（如 Transformer 架构）提取文本的特征。
    - 输出：文本的特征表示向量。
 
-这两个编码器被独立训练，同时会确保它们的输出在同一共享向量空间中。
+　　这两个编码器被独立训练，同时会确保它们的输出在同一共享向量空间中。
 
 ### **3. 嵌入表示**
 
-将图像和文本通过各自的编码器映射到同一个 **d 维共享嵌入空间**中：
+　　将图像和文本通过各自的编码器映射到同一个 **d 维共享嵌入空间**中：
 
 - 图像嵌入：$$v∈Rd, \mathbf{v} \in \mathbb{R}^d,v∈Rd$$
 - 文本嵌入：$t∈Rd,\mathbf{t} \in \mathbb{R}^d,t∈Rd$
@@ -79,35 +127,37 @@ CLIP 的模型分为两个部分：
 
 #### **损失函数：对比损失（Contrastive Loss）**
 
-CLIP 使用**跨熵损失**（cross-entropy loss）来优化正负样本对的区分：
+　　CLIP 使用**跨熵损失**（cross-entropy loss）来优化正负样本对的区分：
 
 - 假设有 NNN 个图像-文本对，图像嵌入 vi\mathbf{v}_ivi 和文本嵌入 ti\mathbf{t}_iti，则损失函数为：
 
-$$\begin{align} \mathcal{L} &= -\frac{1}{2N} \sum_{i=1}^{N} \bigg[\log \frac{\exp(\text{sim}(\mathbf{v}_i, \mathbf{t}_i))}{\sum_{j=1}^{N} \exp(\text{sim}(\mathbf{v}_i, \mathbf{t}_j))} + \log \frac{\exp(\text{sim}(\mathbf{v}_i, \mathbf{t}_i))}{\sum_{j=1}^{N} \exp(\text{sim}(\mathbf{v}_j, \mathbf{t}_i))} \bigg] \end{align}$$
+　　$$\begin{align} \mathcal{L} &= -\frac{1}{2N} \sum_{i=1}^{N} \bigg[\log \frac{\exp(\text{sim}(\mathbf{v}_i, \mathbf{t}_i))}{\sum_{j=1}^{N} \exp(\text{sim}(\mathbf{v}_i, \mathbf{t}_j))} + \log \frac{\exp(\text{sim}(\mathbf{v}_i, \mathbf{t}_i))}{\sum_{j=1}^{N} \exp(\text{sim}(\mathbf{v}_j, \mathbf{t}_i))} \bigg] \end{align}$$
 
 - 解释：
   - 第一项：对于每个图像，最大化与正确文本匹配的概率。
   - 第二项：对于每个文本，最大化与正确图像匹配的概率。
 
-编码器通过神经网络参数学习到如何将图像和文本的语义信息压缩到这些向量中。
+　　编码器通过神经网络参数学习到如何将图像和文本的语义信息压缩到这些向量中。
 
 ***
+
+<div style="page-break-after: always;"></div>
 
 ## **Visual Language Models**
 
 ### 经典论文: 
 
-Flamingo: 
+　　Flamingo: 
 
-BLIP: 
+　　BLIP: 
 
-PaLI-X: https://arxiv.org/pdf/2305.18565
+　　PaLI-X: https://arxiv.org/pdf/2305.18565
 
-PALM-E: https://arxiv.org/pdf/2303.03378
+　　PALM-E: https://arxiv.org/pdf/2303.03378
 
 ### 特征: 
 
-- 目标: 学习输入的图像和文本之间的联系, 并给出针对输入的文本回答
+- 目标: 学习输入的图像和文本之间的联系，并给出针对输入的文本回答
 - 输入输出:
   - 输入: 图像（视觉模态）和文本（语言模态）。
   - 输出: 针对输入的文本回答
@@ -116,17 +166,17 @@ PALM-E: https://arxiv.org/pdf/2303.03378
 
 ### **1. 数据准备**
 
-Visual Language Models 通常需要多模态数据，其中图像与文本对的描述包含：
+　　Visual Language Models 通常需要多模态数据，其中图像与文本对的描述包含：
 
 - 图像：视觉模态的输入（例如一张含物体的图片）。
 - 文本：相应的自然语言描述（例如“a man riding a horse on the beach”）。
 - 可选：有些任务可能还需要额外的上下文（如问题-回答对）。
 
-这类模型需要数据规模较大，可能包括从网络爬取的多模态数据或专门构建的数据集。
+　　这类模型需要数据规模较大，可能包括从网络爬取的多模态数据或专门构建的数据集。
 
 ### **2. 模态特征提取**
 
-Visual Language Models 通常包含以下两个核心编码器：
+　　Visual Language Models 通常包含以下两个核心编码器：
 
 1. **视觉编码器（Vision Encoder）**：
    - 使用预训练的视觉模型（如 Vision Transformer, ViT 或 CNN）。
@@ -135,11 +185,11 @@ Visual Language Models 通常包含以下两个核心编码器：
    - 使用预训练的语言模型（如 GPT 或 Transformer-based 模型）。
    - 将输入的文本（如问题或描述）编码为语言特征 $\mathbf{t}$。
 
-此外，为了进行多模态融合，视觉特征通常会被编码为与语言特征兼容的形式（例如序列化或转换为 token）。
+　　此外，为了进行多模态融合，视觉特征通常会被编码为与语言特征兼容的形式（例如序列化或转换为 token）。
 
 ### **3. 多模态融合**
 
-将视觉特征和语言特征整合以实现多模态信息的交互。这是 Visual Language Models 的核心步骤。
+　　将视觉特征和语言特征整合以实现多模态信息的交互。这是 Visual Language Models 的核心步骤。
 
 - **方法**：
   1. 序列化融合：
@@ -152,7 +202,7 @@ Visual Language Models 通常包含以下两个核心编码器：
 
 ### **4. 生成模块**
 
-Visual Language Models 的输出通常是**自由形式文本**，由生成模块完成：
+　　Visual Language Models 的输出通常是**自由形式文本**，由生成模块完成：
 
 1. **基于解码器（Decoder-based Models）**：
    - 使用语言生成模型（如 GPT 风格的 Transformer 解码器）。
@@ -161,7 +211,7 @@ Visual Language Models 的输出通常是**自由形式文本**，由生成模�
    - 文本以逐词或逐 token 的方式生成。
    - 解码方法可以是贪婪解码、采样或 beam search 等。
 
-Visual Language Models 使用的训练目标包括：
+　　Visual Language Models 使用的训练目标包括：
 
 1. **语言建模损失（Language Modeling Loss）**：
    - 给定输入（图像、文本），预测下一个 token。
@@ -169,24 +219,26 @@ Visual Language Models 使用的训练目标包括：
 
 ### **5. 训练**
 
-Visual Language Models 使用的训练目标包括：
+　　Visual Language Models 使用的训练目标包括：
 
 1. **语言建模损失（Language Modeling Loss）**：
    - 给定输入（图像、文本），预测下一个 token。
    - 损失函数为交叉熵损失：
 
-​	$\mathcal{L} = -\frac{1}{N} \sum_{i=1}^{N} \log P(y_i \mid y_{<i}, \mathbf{v}, \mathbf{t})$
+　　​	$\mathcal{L} = -\frac{1}{N} \sum_{i=1}^{N} \log P(y_i \mid y_{<i}, \mathbf{v}, \mathbf{t})$
 
-​	其中$ y_i$ 是第 $i$ 个生成 token。
+　　​	其中$ y_i$ 是第 $i$ 个生成 token。
 
 2. **任务特定损失（Optional）**：
    - 例如，视觉问答任务可以引入回答准确性的指标。
 
 ***
 
+<div style="page-break-after: always;"></div>
+
 ## Pre training
 
-预训练分为两大主要方向: 
+　　预训练分为两大主要方向: 
 
 1. **预训练的视觉表示（visual representations）**：
    - 目标：通过预训练的视觉模型（如图像编码器），对机器人摄像头观测到的图像进行特征提取。
@@ -205,23 +257,25 @@ Visual Language Models 使用的训练目标包括：
 
 ***
 
-​	之前常见的预训练模型就是这两类, 一类是处理输入的图像信息, 一个是处理输入的文本.  
+　　​	之前常见的预训练模型就是这两类，一类是处理输入的图像信息，一个是处理输入的文本。
 
-​	在以前的机器人框架中, 经常看到多层的框架, 首先用预训练好的视觉模型, 处理相机看到的场景, 通过分割, 检测等提取出场景的文本描述, 这些信息可以和用户的命令一起输入给预训练的语言模型, 再得到输出的控制指令. 
+　　​	在以前的机器人框架中，经常看到多层的框架，首先用预训练好的视觉模型，处理相机看到的场景，通过分割，检测等提取出场景的文本描述，这些信息可以和用户的命令一起输入给预训练的语言模型，再得到输出的控制指令。
 
-​	那么, 结合之前提到的VLM, 自然而然会有一个想法, 是不是就可以把这两个预训练模型给结合起来, 用一个模型就完成呢?  
+　　​	那么，结合之前提到的VLM，自然而然会有一个想法，是不是就可以把这两个预训练模型给结合起来，用一个模型就完成呢?  
 
-​	这就是RT2做的事情, 它的movivation就是结合已有的这两类预训练模型来做机器人控制, 此时的模型就叫做VLA了. 但是在阅读RT2之前, 我们最好先了解下它的前一代模型RT-1的思路.
+　　​	这就是RT2做的事情，它的movivation就是结合已有的这两类预训练模型来做机器人控制，此时的模型就叫做VLA了。 但是在阅读RT2之前，我们最好先了解下它的前一代模型RT-1的思路。
 
 
+
+<div style="page-break-after: always;"></div>
 
 ## 综述
 
-Towards Generalist Robot Policies: What Matters in Building Vision-Language-Action Models： https://arxiv.org/abs/2412.14058
+　　Towards Generalist Robot Policies: What Matters in Building Vision-Language-Action Models： https://arxiv.org/abs/2412.14058
 
-本文详细讨论了VLA领域的论文研究情况。
+　　本文详细讨论了VLA领域的论文研究情况。
 
-本文的作者提出了一个统一的RoboVLMs框架，可以用一个统一框架来实验，并回答以下几个问题：
+　　本文的作者提出了一个统一的RoboVLMs框架，可以用一个统一框架来实验，并回答以下几个问题：
 
 - why 为什么VLA是一种高效的机器人策略生成器。
 - which 哪一种VLM最适合构建VLA
@@ -234,9 +288,11 @@ Towards Generalist Robot Policies: What Matters in Building Vision-Language-Acti
 
 
 
+<div style="page-break-after: always;"></div>
+
 ## RT-1
 
-RT-1: https://arxiv.org/pdf/2212.06817
+　　RT-1: https://arxiv.org/pdf/2212.06817
 
 ![image-20250104200732718](asset/rt1.png)
 
@@ -246,11 +302,11 @@ RT-1: https://arxiv.org/pdf/2212.06817
 
 #### a. 数据收集
 
-RT-1需要使用同时包含图像, 相应自然语言指令和动作序列的数据集。
+　　RT-1需要使用同时包含图像，相应自然语言指令和动作序列的数据集。
 
-数据格式如下: $ i,{(x_j,a_j)}_{j=0}^T $
+　　数据格式如下: $ i,{(x_j,a_j)}_{j=0}^T $
 
-其中:
+　　其中:
 
 - $i$表示语言指令 instruction
 
@@ -258,11 +314,11 @@ RT-1需要使用同时包含图像, 相应自然语言指令和动作序列的�
 
 - $a_j$表示$t=j$时刻采取的动作
 
-通过这种数据格式，可以看出RT-1采用了模仿学习（Imitation Learning）的思路。在一个连续的时间段内采样数据，使其形成一个完整的轨迹，从而训练模型模仿正确的动作序列。
+　　通过这种数据格式，可以看出RT-1采用了模仿学习（Imitation Learning）的思路。在一个连续的时间段内采样数据，使其形成一个完整的轨迹，从而训练模型模仿正确的动作序列。
 
 ### 2. 模型架构
 
-RT-1的架构结合了先进的图像编码器和语言理解模块，通过条件化机制实现视觉与语言的融合。
+　　RT-1的架构结合了先进的图像编码器和语言理解模块，通过条件化机制实现视觉与语言的融合。
 
 #### a. 图像编码器：EfficientNet-B3
 
@@ -302,59 +358,64 @@ RT-1的架构结合了先进的图像编码器和语言理解模块，通过条�
   
 - **动作编码**：每个动作变量维度映射到256个离散值中的一个，形成离散的动作令牌。这么做的原因是离散化后的动作空间较为固定，便于模型学习和优化。
   
-  动作编码是一个很重要的思路, 为了便于理解动作编码, 这里可以举一个例子:
-  
-  ​	假设机械臂的x位置范围是**0.0米到1.0米**。那么经过离散化后, 区间宽度 = (1.0 - 0.0) / 256 ≈ 0.0039m, 假设实际的数据是运动到**目标值**：0.75米, 则**区间编号** = floor((0.75 - 0.0) / 0.0039) = floor(192) = 192, 把这个192给模型学习, 而不是把原始的0.75m给模型.
-  
-  ​	假设在应用阶段, RT-1给出的x是100, 可以解码出实际物理距离 = 100/256 * (1.0 - 0.0) ≈ 0.39m
+
+　　动作编码是一个很重要的思路，为了便于理解动作编码，这里可以举一个例子:
+
+　　​	假设机械臂的x位置范围是**0.0米到1.0米**。那么经过离散化后，区间宽度 = (1.0 - 0.0) / 256 ≈ 0.0039m，假设实际的数据是运动到**目标值**：0.75米，则**区间编号** = floor((0.75 - 0.0) / 0.0039) = floor(192) = 192，把这个192给模型学习，而不是把原始的0.75m给模型。
+
+　　​	假设在应用阶段，RT-1给出的x是100，可以解码出实际物理距离 = 100/256 * (1.0 - 0.0) ≈ 0.39m
 
 ***
 
-​	通过RT-1的工作流程可以发现，其设计也包含了预训练的理念。具体而言，EfficientNet-B3是在ImageNet数据集上进行预训练的。然而，经过ImageNet训练的模型主要用于分类任务，即输入图片后输出分类标签。RT-1通过FiLM层对文本指令进行编码，从而引导模型关注EfficientNet检测到的不同物体。
+　　​	通过RT-1的工作流程可以发现，其设计也包含了预训练的理念。具体而言，EfficientNet-B3是在ImageNet数据集上进行预训练的。然而，经过ImageNet训练的模型主要用于分类任务，即输入图片后输出分类标签。RT-1通过FiLM层对文本指令进行编码，从而引导模型关注EfficientNet检测到的不同物体。
 
-​	实际上，RT-1中FiLM与EfficientNet的结合思路已经与视觉-语言模型（VLM）非常接近。那么，为什么不进一步直接采用VLM呢？在RT-1取得了不错的效果后，Google的研究人员继续深入研究，结合新的思路，诞生了RT-2。
+　　​	实际上，RT-1中FiLM与EfficientNet的结合思路已经与视觉-语言模型（VLM）非常接近。那么，为什么不进一步直接采用VLM呢？在RT-1取得了不错的效果后，Google的研究人员继续深入研究，结合新的思路，诞生了RT-2。
 
 
+
+<div style="page-break-after: always;"></div>
 
 ## RT-2
 
-​	RT-2的思路如下图所示. 
+　　​	RT-2的思路如下图所示。
 
 ![image-20250104202642220](asset/rt2.png)
 
-​	看到这个框架图, 可能会有非常多的问题, 这和RT-1看起来差别太大了, 那么接下来一步一步的分析。
+　　看到这个框架图，可能会有非常多的问题，这和RT-1看起来差别太大了，那么接下来一步一步的分析。
 
-​	首先是RT-2是中间的灰色框，里面又包含一个ViT和LLM，分别是前面基础知识里提到的VLM的视觉编码器和语言编码器。在后续的分析中，我们不再单独区分这两者，直接看作一个整体，叫做VLM就可以。
+　　首先是RT-2是中间的灰色框，里面又包含一个ViT和LLM，分别是前面基础知识里提到的VLM的视觉编码器和语言编码器。在后续的分析中，我们不再单独区分这两者，直接看作一个整体，叫做VLM就可以。
 
-​	关于VLM的选择, RT2使用的VLM是PaLI-X和PALM-E, 可以注意下作者单位, RT-2的大团队是GoogleDeepind, PaLI-X是GoogleResearch, PALM-E是Robotics at Google和Google Research, 是Google的不同部门, 因此在这几个论文里也可以看到重复出现的作者, 他们保持紧密的合作, 也是他们使用PALM和PaLI-X的原因.
+　　关于VLM的选择，RT2使用的VLM是PaLI-X和PALM-E，可以注意下作者单位，RT-2的大团队是GoogleDeepind, PaLI-X是GoogleResearch, PALM-E是Robotics at Google和Google Research，是Google的不同部门，因此在这几个论文里也可以看到重复出现的作者，他们保持紧密的合作，也是他们使用PALM和PaLI-X的原因。
 
-​	为了让VLM更好的对齐机器人任务, 也就是输入文本和场景图片后输出机器人动作, 需要引入和RT-1一样的机器人数据, 也就是左下角的那张图所示的，这里继续延续RT-1的离散化动作思路, 让VLM继续输出原始的token, 也就是图片里那些灰色的且不经过翻译完全看不懂的编码数字。
+　　为了让VLM更好的对齐机器人任务，也就是输入文本和场景图片后输出机器人动作，需要引入和RT-1一样的机器人数据，也就是左下角的那张图所示的，这里继续延续RT-1的离散化动作思路，让VLM继续输出原始的token，也就是图片里那些灰色的且不经过翻译完全看不懂的编码数字。
 
-​	但仅仅用实际机器人数据微调是不行的, 实际机器人的数据和VLM之前pre trained的那些数据差距太大, 而且实际机器人的数据因难以获取，所以数量也比较少，硬要微调的话可能会导致网络梯度过大, 从而网络崩溃。所以还需要加入一些别的数据共同训练, 这些数据就像左上角的两张所示, 就是一些互联网上爬取的图片以及对其中内容的回答。RT-2把这个方式叫做Co-Fine-Tune, Co是cooperate, 表示协同, 也就是通过网络上的大规模Visual-Question-Answer数据和机器人动作数据来共同微调VLM，当然，也不仅仅是为了防止网络崩溃，他们发现这样协同训练可以加强VLM的泛化能力。
+　　但仅仅用实际机器人数据微调是不行的，实际机器人的数据和VLM之前pre trained的那些数据差距太大，而且实际机器人的数据因难以获取，所以数量也比较少，硬要微调的话可能会导致网络梯度过大，从而网络崩溃。所以还需要加入一些别的数据共同训练，这些数据就像左上角的两张所示，就是一些互联网上爬取的图片以及对其中内容的回答。RT-2把这个方式叫做Co-Fine-Tune, Co是cooperate，表示协同，也就是通过网络上的大规模Visual-Question-Answer数据和机器人动作数据来共同微调VLM，当然，也不仅仅是为了防止网络崩溃，他们发现这样协同训练可以加强VLM的泛化能力。
 
-​	通过上面这个微调VLM的流程可以很容易知道，这样微调出来的VLM的输出可能会与action无关。为了解决这个问题， RT-2采取了一个简单的方法，在输入是问机器人该做什么时，RT-2会对VLM的输出进行一个筛选，只输出其中与action相关的token，简单粗暴，他们把这个叫做Output Constraint，不过他们对此给出细节说明。
+　　通过上面这个微调VLM的流程可以很容易知道，这样微调出来的VLM的输出可能会与action无关。为了解决这个问题， RT-2采取了一个简单的方法，在输入是问机器人该做什么时，RT-2会对VLM的输出进行一个筛选，只输出其中与action相关的token，简单粗暴，他们把这个叫做Output Constraint，不过他们对此给出细节说明。
 
-​	最后，VLM输出了一些action tokens，经过反编码，就可以变成实际物理世界的action，就可以直接把这些参数部署到机器人上了。
+　　最后，VLM输出了一些action tokens，经过反编码，就可以变成实际物理世界的action，就可以直接把这些参数部署到机器人上了。
 
 ​	
 
-​	至此，就已经完成了RT-2的框架分析。虽然这个框架看似简单，但这就是VLA的出发点。后续我们可以继续介绍更新的VLA论文。
+　　至此，就已经完成了RT-2的框架分析。虽然这个框架看似简单，但这就是VLA的出发点。后续我们可以继续介绍更新的VLA论文。
 
 ***
 
+<div style="page-break-after: always;"></div>
+
 ## OpenVLA
 
-论文链接：https://arxiv.org/abs/2406.09246
+　　论文链接：https://arxiv.org/abs/2406.09246
 
-该论文发表于2024年6月，研究团队主要来自于斯坦福大学、加州伯克利、麻省理工，合作企业主要是Google Deepmind。	
+　　该论文发表于2024年6月，研究团队主要来自于斯坦福大学、加州伯克利、麻省理工，合作企业主要是Google Deepmind。	
 
 ![image-20250106220111470](asset/openvla.png)
 
-过去VLA存在几个痛点：1. 大部分是闭源的，前面的RT-2模型就是闭源的 2. 过去的微调方法不够高效，模型也比较大，不方便迁移到新的机器人本体和别的任务上，不便于部署。
+　　过去VLA存在几个痛点：1. 大部分是闭源的，前面的RT-2模型就是闭源的 2. 过去的微调方法不够高效，模型也比较大，不方便迁移到新的机器人本体和别的任务上，不便于部署。
 
-基于这两个问题，本文给出了一个全部开源的VLA，也就是论文名字OpenVLA的由来。
+　　基于这两个问题，本文给出了一个全部开源的VLA，也就是论文名字OpenVLA的由来。
 
-OpenVLA在训练上有一些细节：
+　　OpenVLA在训练上有一些细节：
 
 - VLM的基础框架是Prismatic VLM，其visual encoder用了SigLIP和DinoV2两个模型，输入的图像会分别经过这两个模型，然后再结合到一起；用于将图像编码映射到语言模型里的projector是一个两层的MLP；语言模型是一个7B的Llama2。
 - 采用了和RT-2一样的离散动作输出方式；在把VLM连续动作映射到256个离散值的时候，是用连续动作的1%到99%分位区间的值映射到0～255上，这样可以避免数据中的极端值扩大区间范围而导致大量数据堆积到较小的离散区间里。
@@ -367,8 +428,10 @@ OpenVLA在训练上有一些细节：
 
 
 
+<div style="page-break-after: always;"></div>
+
 # 开源的仿真环境
 
-CALVIN
+　　CALVIN
 
-SimplerEnv：
+　　SimplerEnv：

@@ -84,6 +84,79 @@ python3 utils/fix_punctuation.py --help
 
 ---
 
+### 3. add_paragraph_indent.py - 添加段落缩进
+
+为Markdown文档的普通段落自动添加缩进，使文档更符合中文排版习惯。使用全角空格，不会被Markdown解释为代码块。
+
+**功能特点：**
+- ✅ 自动为普通段落添加全角空格缩进（默认两个全角空格）
+- ✅ 不会被Markdown误识别为代码块
+- ✅ 智能识别并保护标题（不添加缩进）
+- ✅ 保护代码块、列表、引用、表格等特殊格式
+- ✅ **简洁的处理逻辑**：
+  - 先清理段落开头的所有空白字符（空格、Tab、全角空格等）
+  - 再统一添加全角空格缩进
+  - 多次运行不会重复添加（幂等操作）
+- ✅ 支持中英文混合段落
+- ✅ 可选使用HTML实体（&emsp;&emsp;）
+
+**使用方法：**
+
+```bash
+# 处理默认文件（使用全角空格）
+python3 utils/add_paragraph_indent.py
+
+# 处理指定文件（直接修改原文件）
+python3 utils/add_paragraph_indent.py 文件名.md
+
+# 输出到新文件
+python3 utils/add_paragraph_indent.py input.md output.md
+
+# 使用HTML实体而非全角空格
+python3 utils/add_paragraph_indent.py 文件名.md --html
+
+# 查看帮助
+python3 utils/add_paragraph_indent.py --help
+```
+
+**示例输出：**
+```
+📄 正在处理: 文档.md
+✅ 处理完成: 文档.md
+   使用 全角空格:
+   - 处理段落: 59 个（清理旧缩进 + 添加新缩进）
+   - 跳过内容: 213 行（标题、列表、代码块等）
+```
+
+**处理示例：**
+
+处理前：
+```markdown
+## 标题
+
+这是一个普通段落。
+
+- 列表项不会被缩进
+```
+
+处理后：
+```markdown
+## 标题
+
+　　这是一个普通段落。
+
+- 列表项不会被缩进
+```
+
+**技术说明：**
+- 使用全角空格（U+3000）而非Tab或4个空格，避免被Markdown解释为代码块
+- 全角空格在中文排版中是标准的缩进方式
+- 渲染后的HTML中段落仍然是 `<p>` 标签，不会变成 `<pre>` 或 `<code>`
+- 采用"先清理，再添加"的策略，确保缩进格式统一
+- 多次运行结果相同（幂等操作），不会重复添加缩进
+
+---
+
 ## 快速开始
 
 **方式一：自动安装（推荐）**
@@ -124,15 +197,16 @@ python3 utils/md_to_pdf.py 文件.md
 
 1. **编辑文档** - 正常编写/修改 Markdown 内容
 2. **统一标点** - 运行 `fix_punctuation.py` 统一标点符号
-3. **更新目录** - 运行 `generate_toc.py` 更新目录
-4. **转换PDF** - 运行 `md_to_pdf.py` 生成PDF文档
-5. **提交代码** - 提交到版本控制系统
+3. **添加缩进** - 运行 `add_paragraph_indent.py` 为段落添加缩进
+4. **更新目录** - 运行 `generate_toc.py` 更新目录
+5. **转换PDF** - 运行 `md_to_pdf.py` 生成PDF文档
+6. **提交代码** - 提交到版本控制系统
 
 或者直接使用 `format_md.sh` 一键完成所有步骤！
 
 ---
 
-### 3. auto_divide.py - 自动添加分页符
+### 4. auto_divide.py - 自动添加分页符
 
 在一级和二级标题前自动添加分页符，用于 Typora 等编辑器导出 PDF 时控制分页。
 
@@ -171,7 +245,7 @@ python3 utils/auto_divide.py --help
 
 ---
 
-### 4. md_to_pdf.py - Markdown转PDF
+### 5. md_to_pdf.py - Markdown转PDF
 
 将Markdown文件转换为PDF，支持中文、代码高亮、表格等。
 
@@ -218,7 +292,7 @@ python3 utils/md_to_pdf.py --help
 
 ---
 
-### 5. traditional_to_simplified.py - 繁体字转简体字
+### 6. traditional_to_simplified.py - 繁体字转简体字
 
 自动将Markdown文档中的繁体字转换为简体字，同时保护代码块、链接等特殊内容。
 
@@ -260,7 +334,7 @@ python3 utils/traditional_to_simplified.py --help
 
 ---
 
-### 6. prompt.py - 文档写作风格指南
+### 7. prompt.py - 文档写作风格指南
 
 提供标准化的写作风格提示词，帮助AI助手按照统一的风格继续撰写技术文档。
 
@@ -292,9 +366,9 @@ style_guide = get_prompt()
 
 ---
 
-### 7. format_md.sh - 一键处理脚本
+### 8. format_md.sh - 一键处理脚本
 
-自动执行完整的文档处理流程：繁简转换 → 统一标点符号 → 更新目录 → 添加分页符 → 可选转换PDF
+自动执行完整的文档处理流程：繁简转换 → 统一标点符号 → 添加段落缩进 → 更新目录 → 添加分页符 → 可选转换PDF
 
 **使用方法：**
 
@@ -318,9 +392,10 @@ bash utils/format_md.sh -pdf 文件名.md
 **处理流程：**
 1. 繁体字转简体字（traditional_to_simplified.py）
 2. 统一标点符号（fix_punctuation.py）
-3. 更新目录（generate_toc.py）
-4. 添加分页符（auto_divide.py）
-5. 转换PDF（md_to_pdf.py，仅当使用 `-pdf` 参数时）
+3. 添加段落缩进（add_paragraph_indent.py）
+4. 更新目录（generate_toc.py）
+5. 添加分页符（auto_divide.py）
+6. 转换PDF（md_to_pdf.py，仅当使用 `-pdf` 参数时）
 
 ---
 
