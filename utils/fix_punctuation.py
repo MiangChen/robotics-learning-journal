@@ -72,7 +72,7 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] not in ['--help', '-h']:
         input_file = sys.argv[1]
     else:
-        input_file = '集群任务规划.md'
+        input_file = '任务规划.md'
     
     if '--help' in sys.argv or '-h' in sys.argv:
         print("""
@@ -81,7 +81,7 @@ def main():
   
 示例：
   python3 fix_punctuation.py                # 处理默认文件
-  python3 fix_punctuation.py 集群任务规划.md  # 处理指定文件
+  python3 fix_punctuation.py 任务规划.md  # 处理指定文件
         """)
         return
     

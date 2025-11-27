@@ -18,7 +18,7 @@
 **使用方法：**
 
 ```bash
-# 更新默认文件（集群任务规划.md）
+# 更新默认文件（任务规划.md）
 python3 utils/generate_toc.py
 
 # 更新指定文件
@@ -61,7 +61,7 @@ python3 utils/generate_toc.py --help
 **使用方法：**
 
 ```bash
-# 处理默认文件（集群任务规划.md）
+# 处理默认文件（任务规划.md）
 python3 utils/fix_punctuation.py
 
 # 处理指定文件
@@ -220,7 +220,7 @@ python3 utils/md_to_pdf.py 文件.md
 **使用方法：**
 
 ```bash
-# 处理默认文件（集群任务规划.md）
+# 处理默认文件（任务规划.md）
 python3 utils/auto_divide.py
 
 # 处理指定文件（直接修改原文件）

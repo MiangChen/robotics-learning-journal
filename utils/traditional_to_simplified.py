@@ -241,7 +241,7 @@ def main():
     args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
     
     if len(args) == 0:
-        input_file = 'docs/集群任务规划.md'
+        input_file = 'docs/任务规划.md'
         output_file = None
     elif len(args) == 1:
         input_file = args[0]

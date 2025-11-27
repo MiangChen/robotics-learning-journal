@@ -6,10 +6,10 @@
 #   ./format_md.sh [文件名] [-pdf]
 #
 # 示例：
-#   ./format_md.sh                                    # 处理默认文件（docs/集群任务规划.md），不转PDF
-#   ./format_md.sh docs/集群任务规划.md                 # 处理指定文件，不转PDF
+#   ./format_md.sh                                    # 处理默认文件（docs/任务规划.md），不转PDF
+#   ./format_md.sh docs/任务规划.md                 # 处理指定文件，不转PDF
 #   ./format_md.sh -pdf                               # 处理默认文件并转PDF
-#   ./format_md.sh docs/集群任务规划.md -pdf            # 处理指定文件并转PDF
+#   ./format_md.sh docs/任务规划.md -pdf            # 处理指定文件并转PDF
 #
 # 处理流程：
 #   1. 繁体字转简体字
@@ -39,7 +39,7 @@ done
 
 # 如果没有指定文件，使用默认文件
 if [ -z "$FILE" ]; then
-    FILE="docs/集群任务规划.md"
+    FILE="docs/任务规划.md"
 fi
 
 echo "📝 正在处理文档: $FILE"

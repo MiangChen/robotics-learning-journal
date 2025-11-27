@@ -185,7 +185,7 @@ def main():
         input_file = sys.argv[1]
     else:
         # 默认文件
-        input_file = '集群任务规划.md'
+        input_file = '任务规划.md'
     
     # 检查命令行参数
     preview_mode = '--preview' in sys.argv or '-p' in sys.argv
@@ -201,7 +201,7 @@ def main():
   
 示例：
   python3 generate_toc.py                    # 更新默认文件
-  python3 generate_toc.py 集群任务规划.md      # 更新指定文件
+  python3 generate_toc.py 任务规划.md      # 更新指定文件
   python3 generate_toc.py --preview          # 预览模式
         """)
         return

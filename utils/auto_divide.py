@@ -125,7 +125,7 @@ def main():
   --help, -h       显示帮助
   
 示例：
-  python3 auto_divide.py 集群任务规划.md              # 直接修改原文件
+  python3 auto_divide.py 任务规划.md              # 直接修改原文件
   python3 auto_divide.py input.md output.md        # 输出到新文件
         """)
         return
@@ -134,7 +134,7 @@ def main():
     if len(sys.argv) > 1 and not sys.argv[1].startswith('--'):
         input_file = sys.argv[1]
     else:
-        input_file = '集群任务规划.md'
+        input_file = '任务规划.md'
     
     output_file = sys.argv[2] if len(sys.argv) > 2 else None
     

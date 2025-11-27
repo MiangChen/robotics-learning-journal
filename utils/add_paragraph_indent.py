@@ -214,7 +214,7 @@ def main():
     if len(sys.argv) > 1 and not sys.argv[1].startswith('--'):
         input_file = sys.argv[1]
     else:
-        input_file = 'docs/集群任务规划.md'
+        input_file = 'docs/任务规划.md'
     
     output_file = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith('--') else None
     
