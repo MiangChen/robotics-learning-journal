@@ -23,12 +23,20 @@ def add_page_breaks(content):
     # 标记是否是文档开头（跳过前面的空行和注释）
     is_first_heading = True
     
+    # 标记是否在代码块内
+    in_code_block = False
+    
     for i, line in enumerate(lines):
+        # 检测代码块的开始和结束
+        if line.strip().startswith('```'):
+            in_code_block = not in_code_block
+        
         # 检查是否是一级或二级标题
         is_h1 = line.strip().startswith('# ') and not line.strip().startswith('## ')
         is_h2 = line.strip().startswith('## ') and not line.strip().startswith('### ')
         
-        if is_h1 or is_h2:
+        # 如果在代码块内，不处理标题
+        if (is_h1 or is_h2) and not in_code_block:
             # 如果是文档中的第一个标题，不添加分页符
             if is_first_heading:
                 is_first_heading = False
@@ -117,7 +125,7 @@ def main():
   --help, -h       显示帮助
   
 示例：
-  python3 auto_divide.py 集群任务规划.md              # 直接修改原文件
+  python3 auto_divide.py 任务规划.md              # 直接修改原文件
   python3 auto_divide.py input.md output.md        # 输出到新文件
         """)
         return
@@ -126,7 +134,7 @@ def main():
     if len(sys.argv) > 1 and not sys.argv[1].startswith('--'):
         input_file = sys.argv[1]
     else:
-        input_file = '集群任务规划.md'
+        input_file = '任务规划.md'
     
     output_file = sys.argv[2] if len(sys.argv) > 2 else None
     

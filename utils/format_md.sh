@@ -6,17 +6,18 @@
 #   ./format_md.sh [文件名] [-pdf]
 #
 # 示例：
-#   ./format_md.sh                                    # 处理默认文件（docs/集群任务规划.md），不转PDF
-#   ./format_md.sh docs/集群任务规划.md                 # 处理指定文件，不转PDF
+#   ./format_md.sh                                    # 处理默认文件（docs/任务规划.md），不转PDF
+#   ./format_md.sh docs/任务规划.md                 # 处理指定文件，不转PDF
 #   ./format_md.sh -pdf                               # 处理默认文件并转PDF
-#   ./format_md.sh docs/集群任务规划.md -pdf            # 处理指定文件并转PDF
+#   ./format_md.sh docs/任务规划.md -pdf            # 处理指定文件并转PDF
 #
 # 处理流程：
 #   1. 繁体字转简体字
 #   2. 统一标点符号
-#   3. 更新目录
-#   4. 添加分页符
-#   5. 转换为PDF（可选）
+#   3. 添加段落缩进
+#   4. 更新目录
+#   5. 添加分页符
+#   6. 转换为PDF（可选）
 
 # 解析参数
 FILE=""
@@ -38,7 +39,7 @@ done
 
 # 如果没有指定文件，使用默认文件
 if [ -z "$FILE" ]; then
-    FILE="docs/集群任务规划.md"
+    FILE="docs/任务规划.md"
 fi
 
 echo "📝 正在处理文档: $FILE"
@@ -52,16 +53,20 @@ echo "2️⃣  统一标点符号..."
 python3 utils/fix_punctuation.py "$FILE"
 echo ""
 
-echo "3️⃣  更新目录..."
+echo "3️⃣  添加段落缩进..."
+python3 utils/add_paragraph_indent.py "$FILE"
+echo ""
+
+echo "4️⃣  更新目录..."
 python3 utils/generate_toc.py "$FILE"
 echo ""
 
-echo "4️⃣  添加分页符..."
+echo "5️⃣  添加分页符..."
 python3 utils/auto_divide.py "$FILE"
 echo ""
 
 if [ $CONVERT_PDF -eq 1 ]; then
-    echo "5️⃣  转换为PDF..."
+    echo "6️⃣  转换为PDF..."
     
     # 检查PDF转换依赖
     python3 -c "import markdown, weasyprint, pygments" 2>/dev/null
