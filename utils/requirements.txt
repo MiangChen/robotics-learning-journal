@@ -1,6 +1,3 @@
-markdown>=3.4.0
-weasyprint>=60.0
-pygments>=2.16.0
-cffi>=1.15.0
-pycparser>=2.21
-opencc-python-reimplemented>=0.1.7
+# 无 Python 依赖
+# PDF 转换使用系统工具 Pandoc:
+#   sudo apt install pandoc texlive-xetex texlive-lang-chinese

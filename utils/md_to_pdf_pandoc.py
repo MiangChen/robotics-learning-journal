@@ -4,10 +4,10 @@
 
 用法:
     python3 utils/md_to_pdf_pandoc.py <input.md> [output.pdf]
-    python3 utils/md_to_pdf_pandoc.py docs/任务规划/src/任务规划.md
 """
 
 import sys
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -17,12 +17,8 @@ def check_pandoc():
     return shutil.which('pandoc') is not None
 
 
-def check_xelatex():
-    return shutil.which('xelatex') is not None
-
-
 def get_cjk_font():
-    fonts = ["Noto Sans CJK SC", "Noto Serif CJK SC", "WenQuanYi Micro Hei", "Source Han Sans SC"]
+    fonts = ["Noto Sans CJK SC", "Noto Serif CJK SC", "WenQuanYi Micro Hei"]
     try:
         result = subprocess.run(['fc-list', ':lang=zh'], capture_output=True, text=True)
         available = result.stdout.lower().replace(' ', '')
@@ -32,6 +28,36 @@ def get_cjk_font():
     except:
         pass
     return "Noto Sans CJK SC"
+
+
+# Emoji 到文字的映射
+EMOJI_MAP = {
+    '📜': '▶',
+    '✅': '√',
+    '❌': '×',
+    '🧠': '[脑]',
+    '⚔': '[剑]',
+    '⚙': '[齿轮]',
+    '🌊': '[浪]',
+    '🌋': '[火山]',
+    '💎': '[宝石]',
+    '💤': '[睡]',
+    '🔋': '[电池]',
+}
+
+
+def replace_emoji(content: str) -> str:
+    """将 emoji 替换为文字符号"""
+    for emoji, text in EMOJI_MAP.items():
+        content = content.replace(emoji, text)
+    return content
+
+
+def fix_indentation(content: str) -> str:
+    """修复缩进问题：移除段落开头的全角空格"""
+    # 移除行首的全角空格（U+3000）和普通空格混合
+    content = re.sub(r'^[　\t]+', '', content, flags=re.MULTILINE)
+    return content
 
 
 def convert_md_to_pdf(input_file: Path, output_file: Path = None):
@@ -49,12 +75,46 @@ def convert_md_to_pdf(input_file: Path, output_file: Path = None):
     output_file = output_file.resolve()
     work_dir = input_file.parent
     
+    # 读取并预处理内容（替换 emoji）
+    with open(input_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    content = replace_emoji(content)
+    content = fix_indentation(content)
+    
+    # 写入临时文件
+    temp_file = work_dir / f'.{input_file.stem}_temp.md'
+    with open(temp_file, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    # 创建 LaTeX header 改善列表样式和超链接样式
+    header = r'''
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=2em, itemsep=0.3em}
+\setlist[itemize,2]{label=\textopenbullet, leftmargin=2em}
+\setlist[itemize,3]{label=\textendash, leftmargin=2em}
+
+% 超链接样式：蓝色+下划线
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=false,
+    linkbordercolor={0 0 1},
+    urlbordercolor={0 0 1},
+    pdfborderstyle={/S/U/W 1}
+}
+'''
+    header_file = work_dir / '.pandoc_header.tex'
+    with open(header_file, 'w') as f:
+        f.write(header)
+    
     cmd = [
-        'pandoc', input_file.name,
+        'pandoc', temp_file.name,
         '-o', str(output_file),
         '--pdf-engine=xelatex',
         '-V', f'CJKmainfont={cjk_font}',
-        '-V', f'mainfont={cjk_font}',
+        '-V', 'mainfont=Times New Roman',
+        '-V', 'monofont=DejaVu Sans Mono',
+        '-H', str(header_file),
         '--toc', '--toc-depth=3',
         '-V', 'documentclass=report',
         '-V', 'geometry:margin=2.5cm',
@@ -71,6 +131,12 @@ def convert_md_to_pdf(input_file: Path, output_file: Path = None):
     
     try:
         result = subprocess.run(cmd, cwd=str(work_dir), capture_output=True, text=True, timeout=300)
+        
+        # 清理临时文件
+        if temp_file.exists():
+            temp_file.unlink()
+        if header_file.exists():
+            header_file.unlink()
         
         if output_file.exists():
             size_kb = output_file.stat().st_size / 1024
@@ -96,10 +162,6 @@ def main():
     
     if not check_pandoc():
         print("错误: Pandoc 未安装\n安装: sudo apt install pandoc")
-        sys.exit(1)
-    
-    if not check_xelatex():
-        print("错误: XeLaTeX 未安装\n安装: sudo apt install texlive-xetex texlive-lang-chinese")
         sys.exit(1)
     
     input_file = Path(sys.argv[1])

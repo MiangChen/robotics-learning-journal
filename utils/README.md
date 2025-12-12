@@ -4,45 +4,31 @@
 
 ## 工具列表
 
-### 1. generate_toc.py - 自动生成目录
+### 1. md_to_pdf_pandoc.py - Markdown 转 PDF
 
-自动扫描 Markdown 文档中的标题并生成目录。
+使用 Pandoc 将 Markdown 文件转换为 PDF，支持中文、代码高亮、图片、表格等。
 
 **功能特点：**
-- ✅ 自动识别 ##、###、####、##### 标题
-- ✅ 生成符合 GitHub 规范的锚点链接
-- ✅ 支持中文标题
-- ✅ 自动缩进
-- ✅ 保护代码块内容
+- ✅ 基于 Pandoc，转换质量高
+- ✅ 支持中文（XeLaTeX + CJK 字体）
+- ✅ 自动生成目录
+- ✅ 代码语法高亮
+- ✅ 支持图片、表格、超链接
+- ✅ 章节自动编号
 
 **使用方法：**
 
 ```bash
-# 更新默认文件（任务规划.md）
-python3 utils/generate_toc.py
+# 转换指定文件（输出同名 PDF）
+python3 utils/md_to_pdf_pandoc.py 文件名.md
 
-# 更新指定文件
-python3 utils/generate_toc.py 文件名.md
-
-# 预览模式（不修改文件）
-python3 utils/generate_toc.py --preview
-python3 utils/generate_toc.py -p
-
-# 查看帮助
-python3 utils/generate_toc.py --help
+# 指定输出文件名
+python3 utils/md_to_pdf_pandoc.py input.md output.pdf
 ```
 
-**示例输出：**
-```
-✓ 已更新现有目录（第10行）
-✓ 目录已更新，文件已保存到: 集群任务规划.md
-  共处理 48 个标题
-
-标题统计：
-  ## 标题: 6 个
-  ### 标题: 7 个
-  #### 标题: 9 个
-  ##### 标题: 26 个
+**依赖安装：**
+```bash
+sudo apt install pandoc texlive-xetex texlive-lang-chinese
 ```
 
 ---
@@ -56,395 +42,41 @@ python3 utils/generate_toc.py --help
 - ✅ 中文句尾英文句号 `.` → 中文句号 `。`
 - ✅ 保护代码块、链接、图片路径
 - ✅ 保护纯英文内容
-- ✅ 智能识别上下文
 
 **使用方法：**
 
 ```bash
-# 处理默认文件（任务规划.md）
-python3 utils/fix_punctuation.py
-
-# 处理指定文件
 python3 utils/fix_punctuation.py 文件名.md
-
-# 查看帮助
-python3 utils/fix_punctuation.py --help
-```
-
-**示例输出：**
-```
-✓ 标点符号已统一，文件已保存到: 集群任务规划.md
-
-统计信息:
-  英文逗号: 115 → 40
-  中文逗号: 362
-  英文句号: 181 → 166
-  中文句号: 272
 ```
 
 ---
 
-### 3. add_paragraph_indent.py - 添加段落缩进
+### 3. format_md.sh - 一键格式化
 
-为Markdown文档的普通段落自动添加缩进，使文档更符合中文排版习惯。使用全角空格，不会被Markdown解释为代码块。
-
-**功能特点：**
-- ✅ 自动为普通段落添加全角空格缩进（默认两个全角空格）
-- ✅ 不会被Markdown误识别为代码块
-- ✅ 智能识别并保护标题（不添加缩进）
-- ✅ 保护代码块、列表、引用、表格等特殊格式
-- ✅ **简洁的处理逻辑**：
-  - 先清理段落开头的所有空白字符（空格、Tab、全角空格等）
-  - 再统一添加全角空格缩进
-  - 多次运行不会重复添加（幂等操作）
-- ✅ 支持中英文混合段落
-- ✅ 可选使用HTML实体（&emsp;&emsp;）
+自动执行文档格式化流程。
 
 **使用方法：**
 
 ```bash
-# 处理默认文件（使用全角空格）
-python3 utils/add_paragraph_indent.py
-
-# 处理指定文件（直接修改原文件）
-python3 utils/add_paragraph_indent.py 文件名.md
-
-# 输出到新文件
-python3 utils/add_paragraph_indent.py input.md output.md
-
-# 使用HTML实体而非全角空格
-python3 utils/add_paragraph_indent.py 文件名.md --html
-
-# 查看帮助
-python3 utils/add_paragraph_indent.py --help
-```
-
-**示例输出：**
-```
-📄 正在处理: 文档.md
-✅ 处理完成: 文档.md
-   使用 全角空格:
-   - 处理段落: 59 个（清理旧缩进 + 添加新缩进）
-   - 跳过内容: 213 行（标题、列表、代码块等）
-```
-
-**处理示例：**
-
-处理前：
-```markdown
-## 标题
-
-这是一个普通段落。
-
-- 列表项不会被缩进
-```
-
-处理后：
-```markdown
-## 标题
-
-　　这是一个普通段落。
-
-- 列表项不会被缩进
-```
-
-**技术说明：**
-- 使用全角空格（U+3000）而非Tab或4个空格，避免被Markdown解释为代码块
-- 全角空格在中文排版中是标准的缩进方式
-- 渲染后的HTML中段落仍然是 `<p>` 标签，不会变成 `<pre>` 或 `<code>`
-- 采用"先清理，再添加"的策略，确保缩进格式统一
-- 多次运行结果相同（幂等操作），不会重复添加缩进
-
----
-
-## 快速开始
-
-**方式一：自动安装（推荐）**
-```bash
-# format_md.sh 会自动检查并安装依赖
-bash utils/format_md.sh 你的文件.md
-```
-
-**方式二：手动安装**
-```bash
-# 使用安装脚本
-bash utils/install_deps.sh
-
-# 或者使用pip
-pip install -r utils/requirements.txt
-
-# 然后处理文档
-bash utils/format_md.sh 你的文件.md
-```
-
-**单独使用：**
-```bash
-# 只修复标点符号
-python3 utils/fix_punctuation.py 文件.md
-
-# 只生成目录
-python3 utils/generate_toc.py 文件.md
-
-# 只转换PDF
-python3 utils/md_to_pdf.py 文件.md
-```
-
----
-
-## 工作流程建议
-
-推荐的文档处理流程：
-
-1. **编辑文档** - 正常编写/修改 Markdown 内容
-2. **统一标点** - 运行 `fix_punctuation.py` 统一标点符号
-3. **添加缩进** - 运行 `add_paragraph_indent.py` 为段落添加缩进
-4. **更新目录** - 运行 `generate_toc.py` 更新目录
-5. **转换PDF** - 运行 `md_to_pdf.py` 生成PDF文档
-6. **提交代码** - 提交到版本控制系统
-
-或者直接使用 `format_md.sh` 一键完成所有步骤！
-
----
-
-### 4. auto_divide.py - 自动添加分页符
-
-在一级和二级标题前自动添加分页符，用于 Typora 等编辑器导出 PDF 时控制分页。
-
-**功能特点：**
-- ✅ 在 `#` 和 `##` 标题前添加分页符
-- ✅ 智能检测，避免重复添加
-- ✅ 保持文档开头第一个标题不分页
-- ✅ **保护代码块**：不会在代码块内的 `#` 标题前添加分页符
-- ✅ 兼容 Typora、VS Code 等编辑器
-
-**使用方法：**
-
-```bash
-# 处理默认文件（任务规划.md）
-python3 utils/auto_divide.py
-
-# 处理指定文件（直接修改原文件）
-python3 utils/auto_divide.py 文件名.md
-
-# 输出到新文件
-python3 utils/auto_divide.py input.md output.md
-
-# 查看帮助
-python3 utils/auto_divide.py --help
-```
-
-**示例输出：**
-```
-📄 正在处理: 集群任务规划.md
-✅ 处理完成: 集群任务规划.md
-```
-
-**添加的分页符格式：**
-```html
-<div style="page-break-after: always;"></div>
-```
-
----
-
-### 5. md_to_pdf.py - Markdown转PDF
-
-将Markdown文件转换为PDF，支持中文、代码高亮、表格等。
-
-**功能特点：**
-- ✅ 纯Python实现，无需系统依赖
-- ✅ 支持中文字体
-- ✅ 代码语法高亮
-- ✅ 支持表格、图片、链接
-- ✅ 自动生成目录
-- ✅ 美观的PDF样式
-- ✅ 二级标题（##）自动分页
-- ✅ HTTP/HTTPS链接可点击
-- ✅ 自动添加页码
-
-**使用方法：**
-
-```bash
-# 首次使用需要安装依赖
-pip install -r utils/requirements.txt
-# 或者
-pip install markdown weasyprint pygments
-
-# 转换默认文件
-python3 utils/md_to_pdf.py
-
-# 转换指定文件
-python3 utils/md_to_pdf.py 文件名.md
-
-# 指定输出文件名
-python3 utils/md_to_pdf.py input.md output.pdf
-
-# 检查依赖是否安装
-python3 utils/md_to_pdf.py --check
-
-# 查看帮助
-python3 utils/md_to_pdf.py --help
-```
-
-**示例输出：**
-```
-📄 正在转换: 集群任务规划.md -> 集群任务规划.pdf
-✅ 转换成功: 集群任务规划.pdf
-```
-
----
-
-### 6. traditional_to_simplified.py - 繁体字转简体字
-
-自动将Markdown文档中的繁体字转换为简体字，同时保护代码块、链接等特殊内容。
-
-**功能特点：**
-- ✅ 自动识别并转换繁体字为简体字
-- ✅ 保护代码块中的内容（不转换）
-- ✅ 保护行内代码、链接、图片路径
-- ✅ 保护HTML标签
-- ✅ 支持预览模式
-
-**使用方法：**
-
-```bash
-# 检查依赖
-python3 utils/traditional_to_simplified.py --check
-
-# 安装依赖（如果需要）
-pip install opencc-python-reimplemented
-
-# 直接修改原文件
-python3 utils/traditional_to_simplified.py 文档.md
-
-# 输出到新文件
-python3 utils/traditional_to_simplified.py input.md output.md
-
-# 预览转换结果（不修改文件）
-python3 utils/traditional_to_simplified.py 文档.md --preview
-
-# 查看帮助
-python3 utils/traditional_to_simplified.py --help
-```
-
-**示例输出：**
-```
-📄 正在处理: 文档.md
-✅ 转换完成: 文档.md
-   转换了 156 个繁体字
-```
-
----
-
-### 7. prompt.py - 文档写作风格指南
-
-提供标准化的写作风格提示词，帮助AI助手按照统一的风格继续撰写技术文档。
-
-**功能特点：**
-- ✅ 详细的写作风格规范
-- ✅ 包含语言风格、结构组织、技术呈现等多个维度
-- ✅ 提供实际应用示例和常用表达模板
-- ✅ 可直接作为AI助手的系统提示词
-
-**使用方法：**
-
-```bash
-# 查看完整的写作风格指南
-python3 utils/prompt.py
-
-# 在Python代码中使用
-from utils.prompt import get_prompt
-style_guide = get_prompt()
-```
-
-**主要内容：**
-- 整体定位与目标读者
-- 语言风格特征（口语化与学术性的平衡）
-- 结构组织原则
-- 技术内容呈现方式
-- 代码与公式规范
-- 特色写作技巧
-- AI助手使用指南
-
----
-
-### 8. format_md.sh - 一键处理脚本
-
-自动执行完整的文档处理流程：繁简转换 → 统一标点符号 → 添加段落缩进 → 更新目录 → 添加分页符 → 可选转换PDF
-
-**使用方法：**
-
-```bash
-# 处理默认文件（不转PDF）
-bash utils/format_md.sh
-
-# 处理指定文件（不转PDF）
 bash utils/format_md.sh 文件名.md
-
-# 处理默认文件并转PDF
-bash utils/format_md.sh -pdf
-
-# 处理指定文件并转PDF
-bash utils/format_md.sh 文件名.md -pdf
-
-# 或者
-bash utils/format_md.sh -pdf 文件名.md
 ```
 
-**处理流程：**
-1. 繁体字转简体字（traditional_to_simplified.py）
-2. 统一标点符号（fix_punctuation.py）
-3. 添加段落缩进（add_paragraph_indent.py）
-4. 更新目录（generate_toc.py）
-5. 添加分页符（auto_divide.py）
-6. 转换PDF（md_to_pdf.py，仅当使用 `-pdf` 参数时）
+---
+
+## Git 工具
+
+- `push.sh` - 快速提交并推送
+- `smart_pull.sh` - 智能拉取（处理 submodule）
 
 ---
 
 ## 依赖
 
-**基础工具（fix_punctuation.py, generate_toc.py）：**
-- Python 3.6+
-- 标准库：`re`, `sys`, `os`
-
-**分页符工具（auto_divide.py）：**
-- Python 3.6+
-- 标准库：`re`, `sys`, `os`
-
-**PDF转换工具（md_to_pdf.py）：**
-- Python 3.6+
-- markdown>=3.4.0
-- weasyprint>=60.0
-- pygments>=2.16.0
-
-安装PDF转换依赖：
+**PDF 转换：**
 ```bash
-pip install -r utils/requirements.txt
+sudo apt install pandoc texlive-xetex texlive-lang-chinese
 ```
 
----
-
-## 注意事项
-
-1. **备份重要文件** - 虽然工具经过测试，但建议先备份重要文档
-2. **版本控制** - 使用 Git 等版本控制系统可以轻松回滚更改
-3. **预览模式** - 不确定效果时，先使用 `--preview` 参数预览
-4. **编码格式** - 确保文件使用 UTF-8 编码
-
----
-
-## 常见问题
-
-**Q: 目录没有更新？**  
-A: 确保文档中有 `## 目录` 标记，或者脚本会自动插入新目录。
-
-**Q: 标点符号转换错误？**  
-A: 检查是否是纯英文内容（会被自动跳过），或者在代码块中（会被保护）。
-
-**Q: 支持其他 Markdown 文件吗？**  
-A: 支持！只需指定文件名作为参数即可。
-
----
-
-## 贡献
-
-欢迎提出改进建议或报告问题！
+**Python 工具：**
+- Python 3.6+
+- 标准库即可
