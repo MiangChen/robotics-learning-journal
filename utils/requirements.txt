@@ -1,3 +1,0 @@
-# 无 Python 依赖
-# PDF 转换使用系统工具 Pandoc:
-#   sudo apt install pandoc texlive-xetex texlive-lang-chinese
