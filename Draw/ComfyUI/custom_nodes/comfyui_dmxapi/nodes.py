@@ -438,6 +438,18 @@ COLOR_SCHEMES = {
 - 文字：深灰色 (#212529)""",
 }
 
+# 边框样式
+BORDER_STYLES = {
+    "无边框": "【边框样式】无边框，元素之间无明显分隔线",
+    "细边框": "【边框样式】细边框（1-2px），简洁清晰",
+    "粗边框": "【边框样式】粗边框（3-4px），强调轮廓",
+    "圆角边框": "【边框样式】圆角边框，柔和友好",
+    "虚线边框": "【边框样式】虚线边框，轻盈活泼",
+    "双线边框": "【边框样式】双线边框，正式庄重",
+    "阴影边框": "【边框样式】带阴影效果，立体感强",
+    "渐变边框": "【边框样式】渐变色边框，现代时尚",
+}
+
 
 class DMXAPIGeminiStyled:
     """
@@ -447,14 +459,8 @@ class DMXAPIGeminiStyled:
     
     @classmethod
     def INPUT_TYPES(cls):
-        optional_inputs = {}
-        for i in range(1, 17):
-            optional_inputs[f"image_{i}"] = ("IMAGE",)
-        
-        optional_inputs.update({
-            "seed": ("INT", {"default": -1, "min": -1, "max": 2147483647}),
-            "top_p": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 1.0, "step": 0.05}),
-        })
+        # 图像输入
+        image_inputs = {f"image_{i}": ("IMAGE",) for i in range(1, 17)}
         
         return {
             "required": {
@@ -463,18 +469,15 @@ class DMXAPIGeminiStyled:
                     "default": "生成一张图像"
                 }),
                 "color_scheme": (list(COLOR_SCHEMES.keys()), {"default": "无"}),
+                "border_style": (list(BORDER_STYLES.keys()), {"default": "无边框"}),
                 "custom_style": ("STRING", {
                     "multiline": True,
                     "default": ""
                 }),
-                "api_key": ("STRING", {
-                    "default": CONFIG.get("api_key", "")
-                }),
-                "model_type": ("STRING", {
-                    "default": CONFIG.get("default_model", "gemini-3-pro-image-preview")
-                }),
+                "seed": ("INT", {"default": -1, "min": -1, "max": 2147483647}),
+                "top_p": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 1.0, "step": 0.05}),
             },
-            "optional": optional_inputs
+            "optional": image_inputs
         }
     
     RETURN_TYPES = ("IMAGE", "STRING")
@@ -492,17 +495,14 @@ class DMXAPIGeminiStyled:
         pil_img.save(buffer, format="PNG")
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
-    def generate(self, prompt, color_scheme, custom_style, api_key, model_type, 
+    def generate(self, prompt, color_scheme, border_style, custom_style,
                  seed=-1, top_p=0.95, **kwargs):
         
-        # 动态重新加载配置，确保使用最新的 api_key
+        # 动态重新加载配置
         config = load_config()
         url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
-        
-        # 如果界面上的 api_key 为空，使用配置文件中的
-        if not api_key or not api_key.strip():
-            api_key = config.get("api_key", "")
-            print(f"[DMXAPI] 使用配置文件中的 API Key")
+        api_key = config.get("api_key", "")
+        model_type = config.get("default_model", "gemini-3-pro-image-preview")
         
         if not api_key:
             print("[DMXAPI] 错误: 未配置 API Key")
@@ -534,6 +534,11 @@ class DMXAPIGeminiStyled:
         style_text = custom_style if custom_style.strip() else COLOR_SCHEMES.get(color_scheme, "")
         if style_text:
             full_prompt += f"\n\n{style_text}"
+        
+        # 添加边框样式
+        border_text = BORDER_STYLES.get(border_style, "")
+        if border_text and border_style != "无边框":
+            full_prompt += f"\n\n{border_text}"
         
         content.append({"type": "text", "text": full_prompt})
         

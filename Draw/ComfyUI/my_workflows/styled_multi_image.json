@@ -6,7 +6,7 @@
       "id": 1,
       "type": "DMXAPIGeminiStyled",
       "pos": [200, 200],
-      "size": [400, 600],
+      "size": [400, 500],
       "flags": {},
       "order": 0,
       "mode": 0,
@@ -31,9 +31,8 @@
       "widgets_values": [
         "请描述你想要生成的图像内容",
         "柔和马卡龙",
+        "无边框",
         "",
-        "sk-3N5Ap93e5YBgrDK6uA6dJkzsj2u1U7eO9MnJAb4bDlBE0Iy1",
-        "gemini-3-pro-image-preview",
         -1,
         0.95
       ]
