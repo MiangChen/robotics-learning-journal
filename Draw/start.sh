@@ -59,7 +59,15 @@ if [ ! -f "$CONFIG_FILE" ]; then
     echo ""
 fi
 
+# 默认工作流
+DEFAULT_WORKFLOW="$COMFYUI_DIR/my_workflows/styled_multi_image.json"
+
 # 进入 ComfyUI 目录并启动
 cd "$COMFYUI_DIR"
 echo -e "${GREEN}[启动] ComfyUI @ http://localhost:8188${NC}"
+echo -e "${YELLOW}[提示] 默认加载工作流: styled_multi_image.json${NC}"
+echo -e "${YELLOW}[提示] 包含节点: DMXAPI Gemini 风格化生成${NC}"
+echo ""
+
+# 启动时自动打开默认工作流
 python main.py --listen 0.0.0.0 --port 8188

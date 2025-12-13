@@ -382,6 +382,289 @@ class DMXAPIGeminiMultiImage:
             return (torch.from_numpy(error_img), error_msg)
 
 
+# 预设配色方案
+COLOR_SCHEMES = {
+    "无": "",
+    "柔和马卡龙": """【配色方案 - 柔和马卡龙色系】
+- 整体风格：淡雅、低饱和度、纯色填充（无渐变无阴影）
+- 背景：浅灰白色 (#F5F5F5)
+- 根节点：淡天蓝色填充 (#B8D4E8)，深蓝色边框 (#5B9BD5)
+- 中间节点：淡杏橙色填充 (#FAE5C8)，橙棕色边框 (#D4A574)
+- 叶节点：淡薄荷绿填充 (#C8E6C9)，深绿色边框 (#81C784)
+- 连接线：深灰色 (#666666)
+- 文字：深灰黑色 (#333333)""",
+    "莫兰迪": """【配色方案 - 莫兰迪色系】
+- 整体风格：高级灰调、低饱和度、柔和优雅
+- 背景：米灰色 (#E8E4E1)
+- 主色：灰粉色 (#C9B8B5)、灰蓝色 (#A8B5C4)、灰绿色 (#B5C4B1)
+- 强调色：烟灰紫 (#9B8B9E)
+- 文字：深灰褐色 (#5C5552)""",
+    "赛博朋克": """【配色方案 - 赛博朋克色系】
+- 整体风格：高对比度、霓虹感、科技未来
+- 背景：深黑色 (#0D0D0D)
+- 主色：霓虹粉 (#FF00FF)、电光蓝 (#00FFFF)
+- 强调色：荧光绿 (#39FF14)、亮紫 (#BF00FF)
+- 文字：白色 (#FFFFFF) 带发光效果""",
+    "自然森林": """【配色方案 - 自然森林色系】
+- 整体风格：自然、清新、有机感
+- 背景：米白色 (#FAF8F5)
+- 主色：森林绿 (#228B22)、橄榄绿 (#6B8E23)、苔藓绿 (#8A9A5B)
+- 强调色：木棕色 (#8B4513)、土黄色 (#DAA520)
+- 文字：深棕色 (#3E2723)""",
+    "日式和风": """【配色方案 - 日式和风色系】
+- 整体风格：简约、禅意、留白
+- 背景：和纸白 (#F5F5DC)
+- 主色：墨黑 (#1C1C1C)、朱红 (#C41E3A)、藏青 (#003366)
+- 强调色：金色 (#D4AF37)、樱粉 (#FFB7C5)
+- 文字：墨黑色 (#1C1C1C)""",
+    "商务专业": """【配色方案 - 商务专业色系】
+- 整体风格：专业、稳重、清晰
+- 背景：纯白色 (#FFFFFF)
+- 主色：深蓝 (#003366)、浅蓝 (#4A90D9)
+- 强调色：橙色 (#FF6B35)、灰色 (#6C757D)
+- 文字：深灰色 (#212529)""",
+}
+
+
+class DMXAPIGeminiStyled:
+    """
+    带颜色风格化的图像生成节点
+    可以在生成时指定配色方案
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        optional_inputs = {}
+        for i in range(1, 17):
+            optional_inputs[f"image_{i}"] = ("IMAGE",)
+        
+        optional_inputs.update({
+            "seed": ("INT", {"default": -1, "min": -1, "max": 2147483647}),
+            "top_p": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 1.0, "step": 0.05}),
+        })
+        
+        return {
+            "required": {
+                "prompt": ("STRING", {
+                    "multiline": True,
+                    "default": "生成一张图像"
+                }),
+                "color_scheme": (list(COLOR_SCHEMES.keys()), {"default": "无"}),
+                "custom_style": ("STRING", {
+                    "multiline": True,
+                    "default": ""
+                }),
+                "api_key": ("STRING", {
+                    "default": CONFIG.get("api_key", "")
+                }),
+                "model_type": ("STRING", {
+                    "default": CONFIG.get("default_model", "gemini-3-pro-image-preview")
+                }),
+            },
+            "optional": optional_inputs
+        }
+    
+    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_NAMES = ("image", "info")
+    FUNCTION = "generate"
+    CATEGORY = "DMXAPI"
+
+    def image_to_base64(self, image_tensor):
+        if image_tensor is None:
+            return None
+        img = image_tensor[0]
+        np_img = (img.cpu().numpy() * 255).astype(np.uint8)
+        pil_img = Image.fromarray(np_img)
+        buffer = io.BytesIO()
+        pil_img.save(buffer, format="PNG")
+        return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+    def generate(self, prompt, color_scheme, custom_style, api_key, model_type, 
+                 seed=-1, top_p=0.95, **kwargs):
+        
+        url = CONFIG.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
+        
+        if seed == -1:
+            seed = random.randint(0, 2147483647)
+        
+        content = []
+        
+        img_count = 0
+        for i in range(1, 17):
+            img = kwargs.get(f"image_{i}")
+            if img is not None:
+                img_base64 = self.image_to_base64(img)
+                if img_base64:
+                    content.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                    })
+                    img_count += 1
+        
+        # 构建完整 prompt
+        full_prompt = prompt
+        
+        # 添加配色方案
+        style_text = custom_style if custom_style.strip() else COLOR_SCHEMES.get(color_scheme, "")
+        if style_text:
+            full_prompt += f"\n\n{style_text}"
+        
+        content.append({"type": "text", "text": full_prompt})
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+            "User-Agent": "DMXAPI/1.0.0 (https://www.dmxapi.com/)",
+        }
+        
+        payload = {
+            "model": model_type,
+            "messages": [{"role": "user", "content": content}],
+            "top_p": top_p,
+            "user": "DMXAPI",
+        }
+
+        info_text = f"Seed: {seed}\nImages: {img_count}\nStyle: {color_scheme}"
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=180)
+            
+            if response.status_code == 200:
+                result = response.json()
+                resp_content = result["choices"][0]["message"]["content"]
+                
+                image_bytes = None
+                if resp_content.startswith("/9j/") or resp_content.startswith("iVBOR"):
+                    image_bytes = base64.b64decode(resp_content)
+                elif "data:image" in resp_content and "base64," in resp_content:
+                    import re
+                    match = re.search(r'data:image/[^;]+;base64,([A-Za-z0-9+/=]+)', resp_content)
+                    if match:
+                        image_bytes = base64.b64decode(match.group(1))
+                
+                if image_bytes:
+                    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                    np_image = np.array(pil_image).astype(np.float32) / 255.0
+                    info_text += f"\n生成成功: {pil_image.size}"
+                    return (torch.from_numpy(np_image).unsqueeze(0), info_text)
+                else:
+                    info_text += f"\n返回文本: {resp_content[:100]}"
+            else:
+                info_text += f"\n失败: {response.status_code}"
+                
+        except Exception as e:
+            info_text += f"\n错误: {str(e)}"
+        
+        error_img = np.zeros((1, 512, 512, 3), dtype=np.float32)
+        error_img[:, :, :, 0] = 1.0
+        return (torch.from_numpy(error_img), info_text)
+
+
+class DMXAPIStyleTransfer:
+    """
+    图像风格转换节点
+    对已有图像应用配色方案
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "color_scheme": (list(COLOR_SCHEMES.keys()), {"default": "柔和马卡龙"}),
+                "custom_style": ("STRING", {
+                    "multiline": True,
+                    "default": ""
+                }),
+                "api_key": ("STRING", {
+                    "default": CONFIG.get("api_key", "")
+                }),
+            },
+            "optional": {
+                "additional_prompt": ("STRING", {
+                    "multiline": True,
+                    "default": ""
+                }),
+                "model_type": ("STRING", {"default": CONFIG.get("default_model", "gemini-3-pro-image-preview")}),
+            }
+        }
+    
+    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_NAMES = ("image", "info")
+    FUNCTION = "transfer"
+    CATEGORY = "DMXAPI"
+
+    def transfer(self, image, color_scheme, custom_style, api_key, 
+                 additional_prompt="", model_type=None):
+        if model_type is None:
+            model_type = CONFIG.get("default_model", "gemini-3-pro-image-preview")
+        url = CONFIG.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
+        
+        # 转换输入图像
+        img_tensor = image[0]
+        np_img = (img_tensor.cpu().numpy() * 255).astype(np.uint8)
+        pil_img = Image.fromarray(np_img)
+        buffer = io.BytesIO()
+        pil_img.save(buffer, format="PNG")
+        img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        
+        # 构建风格转换 prompt
+        style_text = custom_style if custom_style.strip() else COLOR_SCHEMES.get(color_scheme, "")
+        prompt = f"请将这张图片按照以下配色方案重新生成，保持原有内容和布局不变：\n\n{style_text}"
+        if additional_prompt:
+            prompt += f"\n\n额外要求：{additional_prompt}"
+        
+        content = [
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_base64}"}},
+            {"type": "text", "text": prompt}
+        ]
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+            "User-Agent": "DMXAPI/1.0.0 (https://www.dmxapi.com/)",
+        }
+        
+        payload = {
+            "model": model_type,
+            "messages": [{"role": "user", "content": content}],
+            "user": "DMXAPI",
+        }
+        
+        info_text = f"Style: {color_scheme}"
+
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=180)
+            
+            if response.status_code == 200:
+                result = response.json()
+                resp_content = result["choices"][0]["message"]["content"]
+                
+                image_bytes = None
+                if resp_content.startswith("/9j/") or resp_content.startswith("iVBOR"):
+                    image_bytes = base64.b64decode(resp_content)
+                elif "data:image" in resp_content and "base64," in resp_content:
+                    import re
+                    match = re.search(r'data:image/[^;]+;base64,([A-Za-z0-9+/=]+)', resp_content)
+                    if match:
+                        image_bytes = base64.b64decode(match.group(1))
+                
+                if image_bytes:
+                    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                    np_image = np.array(pil_image).astype(np.float32) / 255.0
+                    info_text += f"\n转换成功: {pil_image.size}"
+                    return (torch.from_numpy(np_image).unsqueeze(0), info_text)
+                else:
+                    info_text += f"\n返回文本: {resp_content[:100]}"
+            else:
+                info_text += f"\n失败: {response.status_code}"
+                
+        except Exception as e:
+            info_text += f"\n错误: {str(e)}"
+        
+        return (image, info_text)
+
+
 class DMXAPIGeminiImageBatch:
     """
     接收批量图像输入的节点
@@ -485,6 +768,8 @@ NODE_CLASS_MAPPINGS = {
     "DMXAPIGeminiImageEdit": DMXAPIGeminiImageEdit,
     "DMXAPIGeminiMultiImage": DMXAPIGeminiMultiImage,
     "DMXAPIGeminiImageBatch": DMXAPIGeminiImageBatch,
+    "DMXAPIGeminiStyled": DMXAPIGeminiStyled,
+    "DMXAPIStyleTransfer": DMXAPIStyleTransfer,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -492,4 +777,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DMXAPIGeminiImageEdit": "DMXAPI Gemini 图像编辑",
     "DMXAPIGeminiMultiImage": "DMXAPI Gemini 多图生成",
     "DMXAPIGeminiImageBatch": "DMXAPI Gemini 批量图像",
+    "DMXAPIGeminiStyled": "DMXAPI Gemini 风格化生成",
+    "DMXAPIStyleTransfer": "DMXAPI 风格转换",
 }
