@@ -921,7 +921,7 @@ class AcademicArchitect:
         }
         
         payload = {
-            "model": "gemini-2.5-pro",  # 使用推理能力强的模型
+            "model": "gemini-3-pro-preview",  # 使用推理能力强的模型
             "messages": [{"role": "user", "content": full_prompt}],
             "temperature": 0.7,
         }
@@ -975,15 +975,24 @@ class AcademicRenderer:
     FUNCTION = "render"
     CATEGORY = "DMXAPI/Academic"
 
-    def image_to_base64(self, image_tensor):
-        """将图像张量转换为 base64"""
+    def image_to_base64(self, image_tensor, max_size=800):
+        """将图像张量转换为 base64，自动压缩大图"""
         if image_tensor is None:
             return None
         img = image_tensor[0]
         np_img = (img.cpu().numpy() * 255).astype(np.uint8)
         pil_img = Image.fromarray(np_img)
+        
+        # 压缩大图
+        w, h = pil_img.size
+        if w > max_size or h > max_size:
+            ratio = min(max_size / w, max_size / h)
+            new_size = (int(w * ratio), int(h * ratio))
+            pil_img = pil_img.resize(new_size, Image.LANCZOS)
+            print(f"[Renderer] 压缩参考图: {w}x{h} -> {new_size[0]}x{new_size[1]}")
+        
         buffer = io.BytesIO()
-        pil_img.save(buffer, format="PNG")
+        pil_img.save(buffer, format="JPEG", quality=85)  # 用 JPEG 减小体积
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
     def render(self, visual_schema, color_palette="", **kwargs):
@@ -1004,28 +1013,46 @@ class AcademicRenderer:
             end = visual_schema.find("---END PROMPT---")
             schema_content = visual_schema[start:end].strip()
         
-        # 构建渲染 Prompt
-        render_prompt = RENDERER_PROMPT + schema_content
+        # 限制 schema 长度，避免 prompt 过长
+        max_schema_len = 4000
+        if len(schema_content) > max_schema_len:
+            print(f"[Renderer] Schema 过长 ({len(schema_content)} chars)，截断至 {max_schema_len}")
+            schema_content = schema_content[:max_schema_len] + "\n...(truncated)"
+        
+        # 构建简化的渲染 Prompt
+        render_prompt = f"""Generate a professional academic diagram based on this description:
+
+{schema_content}
+
+Style requirements:
+- Flat vector graphics, clean lines
+- Professional academic paper style
+- Clean white background
+- No 3D effects or shadows"""
+        
         if color_palette:
-            render_prompt += f"\n\n**Color Override:** Use these specific colors: {color_palette}"
+            render_prompt += f"\n- Colors: {color_palette}"
         
         content = []
         
-        # 收集所有参考图像
+        # 收集参考图像（最多 2 张，避免请求过大）
+        max_ref_images = 2
         ref_count = 0
         for i in range(1, 9):
+            if ref_count >= max_ref_images:
+                break
             ref_img = kwargs.get(f"ref_image_{i}")
             if ref_img is not None:
                 img_base64 = self.image_to_base64(ref_img)
                 if img_base64:
                     content.append({
                         "type": "image_url",
-                        "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                        "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}
                     })
                     ref_count += 1
         
         if ref_count > 0:
-            render_prompt += f"\n\n**Style Reference:** Match the visual style, layout characteristics, and color scheme of the {ref_count} uploaded reference image(s). Combine their best elements."
+            render_prompt += f"\n- Match the visual style of the {ref_count} reference image(s)"
         
         content.append({
             "type": "text",
@@ -1043,6 +1070,8 @@ class AcademicRenderer:
         }
         
         info_text = "Renderer 执行中..."
+        
+        print(f"[Renderer] Prompt 长度: {len(render_prompt)} chars, 参考图: {ref_count}")
         
         try:
             print("[Renderer] 正在渲染图像...")
