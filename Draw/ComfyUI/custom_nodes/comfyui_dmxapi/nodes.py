@@ -949,23 +949,25 @@ class AcademicArchitect:
 class AcademicRenderer:
     """
     Step 2: The Renderer - 将 Visual Schema 渲染为图像
+    支持多张参考图片输入
     """
     
     @classmethod
     def INPUT_TYPES(cls):
+        # 生成多个图像输入槽
+        image_inputs = {f"ref_image_{i}": ("IMAGE",) for i in range(1, 9)}
+        
         return {
             "required": {
                 "visual_schema": ("STRING", {
                     "multiline": True,
-                    "default": "粘贴 Architect 生成的 Visual Schema..."
+                    "default": "粘贴 Architect 生成的 Visual Schema 或直接输入绘图描述..."
                 }),
-            },
-            "optional": {
-                "reference_image": ("IMAGE",),
                 "color_palette": ("STRING", {
                     "default": "Azure Blue (#E1F5FE), Slate Grey (#607D8B), Coral Orange (#FF7043), Mint Green (#A5D6A7)"
                 }),
-            }
+            },
+            "optional": image_inputs
         }
     
     RETURN_TYPES = ("IMAGE", "STRING")
@@ -973,7 +975,18 @@ class AcademicRenderer:
     FUNCTION = "render"
     CATEGORY = "DMXAPI/Academic"
 
-    def render(self, visual_schema, reference_image=None, color_palette=""):
+    def image_to_base64(self, image_tensor):
+        """将图像张量转换为 base64"""
+        if image_tensor is None:
+            return None
+        img = image_tensor[0]
+        np_img = (img.cpu().numpy() * 255).astype(np.uint8)
+        pil_img = Image.fromarray(np_img)
+        buffer = io.BytesIO()
+        pil_img.save(buffer, format="PNG")
+        return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+    def render(self, visual_schema, color_palette="", **kwargs):
         config = load_config()
         api_key = config.get("api_key", "")
         url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
@@ -998,21 +1011,26 @@ class AcademicRenderer:
         
         content = []
         
-        # 如果有参考图像
-        if reference_image is not None:
-            img = reference_image[0]
-            np_img = (img.cpu().numpy() * 255).astype(np.uint8)
-            pil_img = Image.fromarray(np_img)
-            buffer = io.BytesIO()
-            pil_img.save(buffer, format="PNG")
-            img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-            content.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:image/png;base64,{img_base64}"}
-            })
-            render_prompt += "\n\n**Style Reference:** Match the visual style, layout characteristics, and color scheme of the uploaded reference image."
+        # 收集所有参考图像
+        ref_count = 0
+        for i in range(1, 9):
+            ref_img = kwargs.get(f"ref_image_{i}")
+            if ref_img is not None:
+                img_base64 = self.image_to_base64(ref_img)
+                if img_base64:
+                    content.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                    })
+                    ref_count += 1
         
-        content.append({"type": "text", "text": render_prompt})
+        if ref_count > 0:
+            render_prompt += f"\n\n**Style Reference:** Match the visual style, layout characteristics, and color scheme of the {ref_count} uploaded reference image(s). Combine their best elements."
+        
+        content.append({
+            "type": "text",
+            "text": render_prompt
+        })
         
         headers = {
             "Content-Type": "application/json",
