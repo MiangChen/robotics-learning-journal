@@ -793,6 +793,377 @@ class DMXAPIGeminiImageBatch:
             return (images[:1], error_msg)
 
 
+# ==================== 学术插图工作流节点 ====================
+
+# 布局类型
+LAYOUT_TYPES = {
+    "Linear Pipeline": "左→右流向，适合 Data Processing, Encoding-Decoding",
+    "Cyclic/Iterative": "中心包含循环箭头，适合 Optimization, RL, Feedback Loops",
+    "Hierarchical Stack": "上→下或下→上堆叠，适合 Multiscale features, Tree structures",
+    "Parallel/Dual-Stream": "上下平行的双流结构，适合 Multi-modal fusion, Contrastive Learning",
+    "Central Hub": "一个核心模块连接四周组件，适合 Agent-Environment, Knowledge Graphs",
+}
+
+ARCHITECT_PROMPT = '''# Role
+你是一位 CVPR/NeurIPS 顶刊的**视觉架构师**。你的核心能力是将抽象的论文逻辑转化为**具体的、结构化的、几何级的视觉指令**。
+
+# Objective
+阅读我提供的论文内容，输出一份 **[VISUAL SCHEMA]**。这份 Schema 将被直接发送给 AI 绘图模型，因此必须使用**强硬的物理描述**。
+
+# Phase 1: Layout Strategy Selector (布局决策)
+请从以下布局原型中选择最合适的一个：
+1. **Linear Pipeline**: 左→右流向 (适合 Data Processing, Encoding-Decoding)
+2. **Cyclic/Iterative**: 中心包含循环箭头 (适合 Optimization, RL, Feedback Loops)
+3. **Hierarchical Stack**: 上→下或下→上堆叠 (适合 Multiscale features, Tree structures)
+4. **Parallel/Dual-Stream**: 上下平行的双流结构 (适合 Multi-modal fusion, Contrastive Learning)
+5. **Central Hub**: 一个核心模块连接四周组件 (适合 Agent-Environment, Knowledge Graphs)
+
+# Phase 2: Schema Generation Rules
+1. **Dynamic Zoning**: 根据选择的布局，定义 2-5 个物理区域 (Zones)
+2. **Internal Visualization**: 必须定义每个区域内部的"物体" (Icons, Grids, Trees)，禁止使用抽象概念
+3. **Explicit Connections**: 如果是循环过程，必须明确描述 "Curved arrow looping back from Zone X to Zone Y"
+
+# Output Format
+请严格遵守以下结构输出：
+
+---BEGIN PROMPT---
+
+[Style & Meta-Instructions]
+High-fidelity scientific schematic, technical vector illustration, clean white background, distinct boundaries, academic textbook style. High resolution 4k, strictly 2D flat design.
+
+[LAYOUT CONFIGURATION]
+* **Selected Layout**: [布局类型]
+* **Composition Logic**: [构图逻辑]
+* **Color Palette**: [配色方案]
+
+[ZONE 1: LOCATION - LABEL]
+* **Container**: [形状描述]
+* **Visual Structure**: [具体描述]
+* **Key Text Labels**: "[文本]"
+
+[ZONE 2: LOCATION - LABEL]
+...
+
+[CONNECTIONS]
+1. [连接线描述]
+2. [连接线描述]
+
+---END PROMPT---
+
+# Input Data
+'''
+
+RENDERER_PROMPT = '''**Style Reference & Execution Instructions:**
+
+1. **Art Style (Visio/Illustrator Aesthetic):**
+   Generate a **professional academic architecture diagram** suitable for a top-tier computer science paper (CVPR/NeurIPS).
+   * **Visuals:** Flat vector graphics, distinct geometric shapes, clean thin outlines, and soft pastel fills.
+   * **Layout:** Strictly follow the spatial arrangement defined below.
+   * **Vibe:** Technical, precise, clean white background. NOT hand-drawn, NOT photorealistic, NOT 3D render, NO shadows/shading.
+
+2. **CRITICAL TEXT CONSTRAINTS:**
+   * **DO NOT render meta-labels:** Do not write words like "ZONE 1", "LAYOUT CONFIGURATION", "Input", "Output", or "Container" inside the image.
+   * **ONLY render "Key Text Labels":** Only text inside double quotes listed under "Key Text Labels" should appear in the diagram.
+   * **Font:** Use a clean, bold Sans-Serif font for all labels.
+
+3. **Visual Schema Execution:**
+   Translate the following structural blueprint into the final image:
+
+'''
+
+
+class AcademicArchitect:
+    """
+    Step 1: The Architect - 将论文内容转化为 Visual Schema
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "paper_content": ("STRING", {
+                    "multiline": True,
+                    "default": "在此粘贴论文摘要或方法章节内容..."
+                }),
+                "layout_hint": (list(LAYOUT_TYPES.keys()), {"default": "Linear Pipeline"}),
+                "zone_count": ("INT", {"default": 3, "min": 2, "max": 5}),
+            },
+            "optional": {
+                "custom_instructions": ("STRING", {
+                    "multiline": True,
+                    "default": ""
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("STRING", "STRING")
+    RETURN_NAMES = ("visual_schema", "full_prompt")
+    FUNCTION = "generate_schema"
+    CATEGORY = "DMXAPI/Academic"
+
+    def generate_schema(self, paper_content, layout_hint, zone_count, custom_instructions=""):
+        config = load_config()
+        api_key = config.get("api_key", "")
+        url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
+        
+        if not api_key:
+            return ("错误: 未配置 API Key", "")
+        
+        # 构建 Architect Prompt
+        full_prompt = ARCHITECT_PROMPT + paper_content
+        if custom_instructions:
+            full_prompt += f"\n\n# Additional Instructions\n{custom_instructions}"
+        full_prompt += f"\n\n# Hints\n- 建议使用 {layout_hint} 布局\n- 建议划分 {zone_count} 个区域"
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        
+        payload = {
+            "model": "gemini-2.5-pro",  # 使用推理能力强的模型
+            "messages": [{"role": "user", "content": full_prompt}],
+            "temperature": 0.7,
+        }
+        
+        try:
+            print("[Architect] 正在生成 Visual Schema...")
+            response = requests.post(url, headers=headers, json=payload, timeout=120)
+            
+            if response.status_code == 200:
+                result = response.json()
+                schema = result["choices"][0]["message"]["content"]
+                print("[Architect] Schema 生成成功")
+                return (schema, full_prompt)
+            else:
+                error = f"API 错误: {response.status_code}"
+                print(f"[Architect] {error}")
+                return (error, full_prompt)
+                
+        except Exception as e:
+            error = f"错误: {str(e)}"
+            print(f"[Architect] {error}")
+            return (error, full_prompt)
+
+
+class AcademicRenderer:
+    """
+    Step 2: The Renderer - 将 Visual Schema 渲染为图像
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "visual_schema": ("STRING", {
+                    "multiline": True,
+                    "default": "粘贴 Architect 生成的 Visual Schema..."
+                }),
+            },
+            "optional": {
+                "reference_image": ("IMAGE",),
+                "color_palette": ("STRING", {
+                    "default": "Azure Blue (#E1F5FE), Slate Grey (#607D8B), Coral Orange (#FF7043), Mint Green (#A5D6A7)"
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_NAMES = ("image", "info")
+    FUNCTION = "render"
+    CATEGORY = "DMXAPI/Academic"
+
+    def render(self, visual_schema, reference_image=None, color_palette=""):
+        config = load_config()
+        api_key = config.get("api_key", "")
+        url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
+        model_type = config.get("default_model", "gemini-3-pro-image-preview")
+        
+        if not api_key:
+            error_img = np.zeros((1, 512, 512, 3), dtype=np.float32)
+            error_img[:, :, :, 0] = 1.0
+            return (torch.from_numpy(error_img), "错误: 未配置 API Key")
+        
+        # 提取 Schema 中的核心内容
+        schema_content = visual_schema
+        if "---BEGIN PROMPT---" in visual_schema and "---END PROMPT---" in visual_schema:
+            start = visual_schema.find("---BEGIN PROMPT---") + len("---BEGIN PROMPT---")
+            end = visual_schema.find("---END PROMPT---")
+            schema_content = visual_schema[start:end].strip()
+        
+        # 构建渲染 Prompt
+        render_prompt = RENDERER_PROMPT + schema_content
+        if color_palette:
+            render_prompt += f"\n\n**Color Override:** Use these specific colors: {color_palette}"
+        
+        content = []
+        
+        # 如果有参考图像
+        if reference_image is not None:
+            img = reference_image[0]
+            np_img = (img.cpu().numpy() * 255).astype(np.uint8)
+            pil_img = Image.fromarray(np_img)
+            buffer = io.BytesIO()
+            pil_img.save(buffer, format="PNG")
+            img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            content.append({
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+            })
+            render_prompt += "\n\n**Style Reference:** Match the visual style, layout characteristics, and color scheme of the uploaded reference image."
+        
+        content.append({"type": "text", "text": render_prompt})
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        
+        payload = {
+            "model": model_type,
+            "messages": [{"role": "user", "content": content}],
+        }
+        
+        info_text = "Renderer 执行中..."
+        
+        try:
+            print("[Renderer] 正在渲染图像...")
+            response = requests.post(url, headers=headers, json=payload, timeout=180)
+            
+            if response.status_code == 200:
+                result = response.json()
+                resp_content = result["choices"][0]["message"]["content"]
+                
+                image_bytes = None
+                if resp_content.startswith("/9j/") or resp_content.startswith("iVBOR"):
+                    image_bytes = base64.b64decode(resp_content)
+                elif "data:image" in resp_content and "base64," in resp_content:
+                    import re
+                    match = re.search(r'data:image/[^;]+;base64,([A-Za-z0-9+/=]+)', resp_content)
+                    if match:
+                        image_bytes = base64.b64decode(match.group(1))
+                
+                if image_bytes:
+                    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                    np_image = np.array(pil_image).astype(np.float32) / 255.0
+                    info_text = f"渲染成功: {pil_image.size}"
+                    print(f"[Renderer] {info_text}")
+                    return (torch.from_numpy(np_image).unsqueeze(0), info_text)
+                else:
+                    info_text = f"返回文本: {resp_content[:200]}"
+            else:
+                info_text = f"API 错误: {response.status_code}"
+                
+        except Exception as e:
+            info_text = f"错误: {str(e)}"
+        
+        print(f"[Renderer] {info_text}")
+        error_img = np.zeros((1, 512, 512, 3), dtype=np.float32)
+        error_img[:, :, :, 0] = 1.0
+        return (torch.from_numpy(error_img), info_text)
+
+
+class AcademicEditor:
+    """
+    Step 3: The Editor - 对生成的图像进行自然语言编辑
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "edit_instruction": ("STRING", {
+                    "multiline": True,
+                    "default": "例如: Make all lines thinner, change the orange arrows to dark grey"
+                }),
+            },
+        }
+    
+    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_NAMES = ("image", "info")
+    FUNCTION = "edit"
+    CATEGORY = "DMXAPI/Academic"
+
+    def edit(self, image, edit_instruction):
+        config = load_config()
+        api_key = config.get("api_key", "")
+        url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
+        model_type = config.get("default_model", "gemini-3-pro-image-preview")
+        
+        if not api_key:
+            return (image, "错误: 未配置 API Key")
+        
+        # 转换图像
+        img_tensor = image[0]
+        np_img = (img_tensor.cpu().numpy() * 255).astype(np.uint8)
+        pil_img = Image.fromarray(np_img)
+        buffer = io.BytesIO()
+        pil_img.save(buffer, format="PNG")
+        img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        
+        edit_prompt = f"""You are editing an academic diagram. Please make the following modifications while preserving the overall structure and layout:
+
+{edit_instruction}
+
+Important:
+- Keep the diagram style professional and suitable for academic papers
+- Maintain clean lines and flat 2D design
+- Do not add shadows or 3D effects
+- Preserve all existing text labels unless specifically asked to change them"""
+        
+        content = [
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_base64}"}},
+            {"type": "text", "text": edit_prompt}
+        ]
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        
+        payload = {
+            "model": model_type,
+            "messages": [{"role": "user", "content": content}],
+        }
+        
+        info_text = "Editor 执行中..."
+        
+        try:
+            print(f"[Editor] 正在编辑: {edit_instruction[:50]}...")
+            response = requests.post(url, headers=headers, json=payload, timeout=180)
+            
+            if response.status_code == 200:
+                result = response.json()
+                resp_content = result["choices"][0]["message"]["content"]
+                
+                image_bytes = None
+                if resp_content.startswith("/9j/") or resp_content.startswith("iVBOR"):
+                    image_bytes = base64.b64decode(resp_content)
+                elif "data:image" in resp_content and "base64," in resp_content:
+                    import re
+                    match = re.search(r'data:image/[^;]+;base64,([A-Za-z0-9+/=]+)', resp_content)
+                    if match:
+                        image_bytes = base64.b64decode(match.group(1))
+                
+                if image_bytes:
+                    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                    np_image = np.array(pil_image).astype(np.float32) / 255.0
+                    info_text = f"编辑成功: {pil_image.size}"
+                    print(f"[Editor] {info_text}")
+                    return (torch.from_numpy(np_image).unsqueeze(0), info_text)
+                else:
+                    info_text = f"返回文本: {resp_content[:100]}"
+            else:
+                info_text = f"API 错误: {response.status_code}"
+                
+        except Exception as e:
+            info_text = f"错误: {str(e)}"
+        
+        print(f"[Editor] {info_text}")
+        return (image, info_text)
+
+
 # 节点注册
 NODE_CLASS_MAPPINGS = {
     "DMXAPIGeminiImageGen": DMXAPIGeminiImageGen,
@@ -801,6 +1172,9 @@ NODE_CLASS_MAPPINGS = {
     "DMXAPIGeminiImageBatch": DMXAPIGeminiImageBatch,
     "DMXAPIGeminiStyled": DMXAPIGeminiStyled,
     "DMXAPIStyleTransfer": DMXAPIStyleTransfer,
+    "AcademicArchitect": AcademicArchitect,
+    "AcademicRenderer": AcademicRenderer,
+    "AcademicEditor": AcademicEditor,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -810,4 +1184,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DMXAPIGeminiImageBatch": "DMXAPI Gemini 批量图像",
     "DMXAPIGeminiStyled": "DMXAPI Gemini 风格化生成",
     "DMXAPIStyleTransfer": "DMXAPI 风格转换",
+    "AcademicArchitect": "学术插图 - 逻辑构建 (Architect)",
+    "AcademicRenderer": "学术插图 - 视觉渲染 (Renderer)",
+    "AcademicEditor": "学术插图 - 交互编辑 (Editor)",
 }
