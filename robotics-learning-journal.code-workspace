@@ -2,12 +2,7 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../MultiAgent-Unreal"
 		}
 	],
-	"settings": {
-		"kiroAgent.configureMCP": "Disabled"
-	}
+	"settings": {}
 }
