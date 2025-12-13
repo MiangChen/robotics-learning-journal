@@ -15,18 +15,31 @@ import os
 
 # 加载配置文件
 def load_config():
-    config_path = os.path.join(os.path.dirname(__file__), "config.json")
     default_config = {
         "api_key": "",
         "api_url": "https://vip.dmxapi.com/v1/chat/completions",
         "default_model": "gemini-3-pro-image-preview"
     }
-    if os.path.exists(config_path):
-        try:
-            with open(config_path, "r", encoding="utf-8") as f:
-                return {**default_config, **json.load(f)}
-        except Exception as e:
-            print(f"[DMXAPI] 加载配置失败: {e}")
+    
+    # 优先从 Draw/dmxapi_config.json 加载
+    # 路径: custom_nodes/comfyui_dmxapi/nodes.py -> ../../.. -> Draw/
+    draw_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    config_paths = [
+        os.path.join(draw_dir, "dmxapi_config.json"),  # Draw/dmxapi_config.json
+        os.path.join(os.path.dirname(__file__), "config.json"),  # 插件目录下的 config.json (备用)
+    ]
+    
+    for config_path in config_paths:
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    config = {**default_config, **json.load(f)}
+                    print(f"[DMXAPI] 已加载配置: {config_path}")
+                    return config
+            except Exception as e:
+                print(f"[DMXAPI] 加载配置失败 ({config_path}): {e}")
+    
+    print("[DMXAPI] 未找到配置文件，使用默认配置")
     return default_config
 
 CONFIG = load_config()
@@ -482,7 +495,20 @@ class DMXAPIGeminiStyled:
     def generate(self, prompt, color_scheme, custom_style, api_key, model_type, 
                  seed=-1, top_p=0.95, **kwargs):
         
-        url = CONFIG.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
+        # 动态重新加载配置，确保使用最新的 api_key
+        config = load_config()
+        url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
+        
+        # 如果界面上的 api_key 为空，使用配置文件中的
+        if not api_key or not api_key.strip():
+            api_key = config.get("api_key", "")
+            print(f"[DMXAPI] 使用配置文件中的 API Key")
+        
+        if not api_key:
+            print("[DMXAPI] 错误: 未配置 API Key")
+            error_img = np.zeros((1, 512, 512, 3), dtype=np.float32)
+            error_img[:, :, :, 0] = 1.0
+            return (torch.from_numpy(error_img), "错误: 未配置 API Key，请在 Draw/dmxapi_config.json 中设置")
         
         if seed == -1:
             seed = random.randint(0, 2147483647)
