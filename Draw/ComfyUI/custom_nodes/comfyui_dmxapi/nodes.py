@@ -1052,7 +1052,9 @@ class AcademicRenderer:
                 else:
                     info_text = f"返回文本: {resp_content[:200]}"
             else:
-                info_text = f"API 错误: {response.status_code}"
+                error_detail = response.text[:500] if response.text else "无详细信息"
+                info_text = f"API 错误: {response.status_code} - {error_detail}"
+                print(f"[Renderer] {info_text}")
                 
         except Exception as e:
             info_text = f"错误: {str(e)}"
