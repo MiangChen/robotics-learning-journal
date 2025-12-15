@@ -62,11 +62,15 @@ class AcademicArchitect:
             "Authorization": f"Bearer {api_key}",
         }
         
+        text_model = config.get("text_model", "gemini-3-pro-preview")
+        
         payload = {
-            "model": "gemini-3-pro-preview",
+            "model": text_model,
             "messages": [{"role": "user", "content": full_prompt}],
             "temperature": 0.7,
         }
+        
+        print(f"[Architect] 使用模型: {text_model}")
         
         try:
             print("[Architect] 正在生成 Visual Schema...")
@@ -120,7 +124,15 @@ class AcademicRenderer:
         config = load_config()
         api_key = config.get("api_key", "")
         url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
-        model_type = config.get("default_model", "gemini-3-pro-image-preview")
+        image_model = config.get("image_model", "gemini-2.5-flash-preview")
+        
+        # ========== DEBUG LOG ==========
+        print(f"[Renderer] ========== 输入参数 DEBUG ==========")
+        print(f"[Renderer] visual_schema 长度: {len(visual_schema)} chars")
+        print(f"[Renderer] visual_schema 前200字符:\n{visual_schema[:200]}")
+        print(f"[Renderer] color_palette: '{color_palette}'")
+        print(f"[Renderer] =====================================")
+        # ================================
         
         if not api_key:
             return (create_error_image(), "错误: 未配置 API Key")
@@ -130,11 +142,16 @@ class AcademicRenderer:
             start = visual_schema.find("---BEGIN PROMPT---") + len("---BEGIN PROMPT---")
             end = visual_schema.find("---END PROMPT---")
             schema_content = visual_schema[start:end].strip()
+            print(f"[Renderer] 检测到 BEGIN/END PROMPT 标记，提取内容长度: {len(schema_content)}")
+        else:
+            print(f"[Renderer] 未检测到 BEGIN/END PROMPT 标记，使用原始 visual_schema")
         
         max_schema_len = 4000
         if len(schema_content) > max_schema_len:
             print(f"[Renderer] Schema 过长 ({len(schema_content)} chars)，截断至 {max_schema_len}")
             schema_content = schema_content[:max_schema_len] + "\n...(truncated)"
+        
+        print(f"[Renderer] schema_content 前300字符:\n{schema_content[:300]}")
         
         render_prompt = f"""Generate a professional academic diagram based on this description:
 
@@ -148,6 +165,7 @@ Style requirements:
         
         if color_palette:
             render_prompt += f"\n- Colors: {color_palette}"
+            print(f"[Renderer] 添加了 color_palette 到 prompt")
         
         content = []
         
@@ -180,7 +198,7 @@ Style requirements:
         }
         
         payload = {
-            "model": model_type,
+            "model": image_model,
             "messages": [{"role": "user", "content": content}],
         }
         
@@ -188,11 +206,13 @@ Style requirements:
         
         print(f"[Renderer] ========== 请求详情 ==========")
         print(f"[Renderer] URL: {url}")
-        print(f"[Renderer] Model: {model_type}")
+        print(f"[Renderer] Model: {image_model}")
         print(f"[Renderer] API Key: {api_key[:10]}...{api_key[-4:]}")
         print(f"[Renderer] Prompt 长度: {len(render_prompt)} chars")
         print(f"[Renderer] 参考图数量: {ref_count}")
-        print(f"[Renderer] ================================")
+        print(f"[Renderer] ========== 完整 render_prompt ==========")
+        print(render_prompt)
+        print(f"[Renderer] =========================================")
         
         try:
             print("[Renderer] 正在发送请求...")
@@ -256,7 +276,7 @@ class AcademicEditor:
         config = load_config()
         api_key = config.get("api_key", "")
         url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
-        model_type = config.get("default_model", "gemini-3-pro-image-preview")
+        image_model = config.get("image_model", "gemini-2.5-flash-preview-05-20")
         
         if not api_key:
             return (image, "错误: 未配置 API Key")
@@ -284,13 +304,14 @@ Important:
         }
         
         payload = {
-            "model": model_type,
+            "model": image_model,
             "messages": [{"role": "user", "content": content}],
         }
         
         info_text = "Editor 执行中..."
         
         try:
+            print(f"[Editor] 使用模型: {image_model}")
             print(f"[Editor] 正在编辑: {edit_instruction[:50]}...")
             response = requests.post(url, headers=headers, json=payload, timeout=180)
             

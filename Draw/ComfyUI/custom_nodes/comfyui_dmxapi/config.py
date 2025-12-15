@@ -11,7 +11,8 @@ def load_config():
     default_config = {
         "api_key": "",
         "api_url": "https://vip.dmxapi.com/v1/chat/completions",
-        "default_model": "gemini-3-pro-image-preview"
+        "text_model": "gemini-2.5-pro-preview-06-05",
+        "image_model": "gemini-2.5-flash-preview-05-20"
     }
     
     # 优先从 Draw/config_llm.json 加载
