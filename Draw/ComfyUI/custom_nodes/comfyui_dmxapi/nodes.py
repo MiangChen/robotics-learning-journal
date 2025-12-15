@@ -1070,11 +1070,20 @@ Style requirements:
         
         info_text = "Renderer 执行中..."
         
-        print(f"[Renderer] Prompt 长度: {len(render_prompt)} chars, 参考图: {ref_count}")
+        print(f"[Renderer] ========== 请求详情 ==========")
+        print(f"[Renderer] URL: {url}")
+        print(f"[Renderer] Model: {model_type}")
+        print(f"[Renderer] API Key: {api_key[:10]}...{api_key[-4:]}")
+        print(f"[Renderer] Prompt 长度: {len(render_prompt)} chars")
+        print(f"[Renderer] 参考图数量: {ref_count}")
+        print(f"[Renderer] Content 项数: {len(content)}")
+        print(f"[Renderer] ================================")
         
         try:
-            print("[Renderer] 正在渲染图像...")
+            print("[Renderer] 正在发送请求...")
             response = requests.post(url, headers=headers, json=payload, timeout=180)
+            print(f"[Renderer] 响应状态码: {response.status_code}")
+            print(f"[Renderer] 响应头: {dict(response.headers)}")
             
             if response.status_code == 200:
                 result = response.json()
@@ -1125,6 +1134,7 @@ class AcademicEditor:
                     "multiline": True,
                     "default": "例如: Make all lines thinner, change the orange arrows to dark grey"
                 }),
+                "enabled": ("BOOLEAN", {"default": True}),
             },
         }
     
@@ -1133,7 +1143,13 @@ class AcademicEditor:
     FUNCTION = "edit"
     CATEGORY = "DMXAPI/Academic"
 
-    def edit(self, image, edit_instruction):
+    def edit(self, image, edit_instruction, enabled=True):
+        # 如果停用，直接返回空图像
+        if not enabled:
+            print("[Editor] 已停用，跳过编辑")
+            # 返回空白图像
+            empty_img = np.zeros((1, 512, 512, 3), dtype=np.float32)
+            return (torch.from_numpy(empty_img), "已停用")
         config = load_config()
         api_key = config.get("api_key", "")
         url = config.get("api_url", "https://vip.dmxapi.com/v1/chat/completions")
