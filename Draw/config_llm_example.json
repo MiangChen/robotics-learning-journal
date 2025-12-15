@@ -1,5 +1,6 @@
 {
     "api_key": "需要换成自己的api_key",
     "api_url": "需要换成API代理商的url https://vip.dmxapi.com/v1/chat/completions",
-    "default_model": "gemini-3-pro-image-preview"
+    "default_model": "gemini-3-pro-image-preview",
+    "warn_message": " 因为nano banana 最近可能不稳定, 可以用 gemini-2.5-flash-image"
 }
