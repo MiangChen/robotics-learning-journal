@@ -21,12 +21,11 @@ def load_config():
         "default_model": "gemini-3-pro-image-preview"
     }
     
-    # 优先从 Draw/dmxapi_config.json 加载
+    # 优先从 Draw/config_llm.json 加载
     # 路径: custom_nodes/comfyui_dmxapi/nodes.py -> ../../.. -> Draw/
     draw_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     config_paths = [
-        os.path.join(draw_dir, "dmxapi_config.json"),  # Draw/dmxapi_config.json
-        os.path.join(os.path.dirname(__file__), "config.json"),  # 插件目录下的 config.json (备用)
+        os.path.join(draw_dir, "config_llm.json"),  # Draw/config_llm.json
     ]
     
     for config_path in config_paths:
