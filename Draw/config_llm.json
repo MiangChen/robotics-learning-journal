@@ -1,6 +1,0 @@
-{
-    "api_key": "sk-vL4B2yur7qLwDzQRQbzfkx57QdSnQzO0s1Kw8cENuFcx8Wm9",
-    "api_url": "https://vip.dmxapi.com/v1/chat/completions",
-    "text_model": "gemini-3-pro-preview",
-    "image_model": "gemini-3-pro-image-preview"
-}

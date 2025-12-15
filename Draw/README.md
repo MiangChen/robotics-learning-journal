@@ -16,15 +16,19 @@ bash Draw/start.sh
 # 访问 http://localhost:8188
 ```
 
-然后左侧选择 Academic Workflow即可
+ctrl + o 打开选择界面
 
-![./asset/workflow.png](./asset/workflow.png)
+![open.png](./asset/open_folder.png)
 
-第一次需要手动配置一下连线:
+选择 Draw/ComfyUI/my_workflows/academic_diagram.json
 
-![./asset/img.png](./asset/img.png)
+![wf.png](./asset/select_wf.png)
 
----
+
+
+
+
+
 
 ## 工作流概览
 
