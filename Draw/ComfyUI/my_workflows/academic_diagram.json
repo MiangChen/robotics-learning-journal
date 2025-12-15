@@ -1,6 +1,6 @@
 {
-  "last_node_id": 9,
-  "last_link_id": 10,
+  "last_node_id": 5,
+  "last_link_id": 4,
   "nodes": [
     {
       "id": 1,
@@ -50,46 +50,6 @@
           "widget": {
             "name": "visual_schema"
           }
-        },
-        {
-          "name": "ref_image_1",
-          "type": "IMAGE",
-          "link": 5
-        },
-        {
-          "name": "ref_image_2",
-          "type": "IMAGE",
-          "link": 6
-        },
-        {
-          "name": "ref_image_3",
-          "type": "IMAGE",
-          "link": null
-        },
-        {
-          "name": "ref_image_4",
-          "type": "IMAGE",
-          "link": null
-        },
-        {
-          "name": "ref_image_5",
-          "type": "IMAGE",
-          "link": null
-        },
-        {
-          "name": "ref_image_6",
-          "type": "IMAGE",
-          "link": null
-        },
-        {
-          "name": "ref_image_7",
-          "type": "IMAGE",
-          "link": null
-        },
-        {
-          "name": "ref_image_8",
-          "type": "IMAGE",
-          "link": null
         }
       ],
       "outputs": [
@@ -189,84 +149,20 @@
         "Node name for S&R": "PreviewImage"
       },
       "title": "编辑结果预览"
-    },
-    {
-      "id": 6,
-      "type": "LoadImage",
-      "pos": [100, 550],
-      "size": [200, 150],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [5],
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null,
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [""],
-      "title": "参考图 1 (可选)"
-    },
-    {
-      "id": 7,
-      "type": "LoadImage",
-      "pos": [320, 550],
-      "size": [200, 150],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [6],
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null,
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [""],
-      "title": "参考图 2 (可选)"
     }
   ],
   "links": [
     [1, 1, 0, 2, 0, "STRING"],
     [2, 2, 0, 3, 0, "IMAGE"],
     [3, 2, 0, 4, 0, "IMAGE"],
-    [4, 3, 0, 5, 0, "IMAGE"],
-    [5, 6, 0, 2, 1, "IMAGE"],
-    [6, 7, 0, 2, 2, "IMAGE"]
+    [4, 3, 0, 5, 0, "IMAGE"]
   ],
   "groups": [
     {
-      "title": "学术插图工作流 - Architect → Renderer → Editor (支持多图参考)",
-      "bounding": [50, 100, 1400, 850],
+      "title": "学术插图工作流 - Architect → Renderer → Editor",
+      "bounding": [50, 100, 1400, 750],
       "color": "#3f789e",
       "font_size": 24
-    },
-    {
-      "title": "参考图片 (可选，用于风格迁移)",
-      "bounding": [80, 520, 460, 200],
-      "color": "#8AA",
-      "font_size": 18
     }
   ],
   "config": {},
