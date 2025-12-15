@@ -16,4 +16,4 @@ echo "  ComfyUI 启动中..."
 echo "  访问地址: http://localhost:8188"
 echo "=========================================="
 
-python main.py --listen 0.0.0.0 "$@"
+python main.py --listen 0.0.0.0 --default-workflow my_workflows/academic_diagram.json "$@"
