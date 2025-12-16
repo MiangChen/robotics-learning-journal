@@ -22,5 +22,5 @@ ENV/
 *.bak
 .DS_Store
 
-# API 配置（包含敏感信息）
-Draw/ComfyUI/custom_nodes/comfyui_dmxapi/config.json
+# 私有文档
+docs/
