@@ -11,6 +11,7 @@
 - [技术文档相关](#技术文档相关)
 - [调研相关](#调研相关)
   - [📄 任务规划笔记 PDF ✨✨✨（New Update）](#任务规划笔记-pdf-new-update)
+- [推荐自学书籍](#推荐自学书籍)
 ***
 
 <div style="page-break-after: always;"></div>
@@ -44,3 +45,11 @@
 　　[查看 LLM RL 交叉研究](https://github.com/WindyLab/LLM-RL-Papers)
 
 　　[查看 脑科学启发论文](脑科学启发论文.md)
+
+<div style="page-break-after: always;"></div>
+
+## 推荐自学书籍
+
+　　[《深度学习》(花书) 中文版](https://github.com/exacity/deeplearningbook-chinese)
+
+　　[《神经网络与深度学习》(邱锡鹏)](https://nndl.ai/)
